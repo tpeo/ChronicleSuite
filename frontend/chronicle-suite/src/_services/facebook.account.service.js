@@ -63,24 +63,7 @@ async function login() {
     // login with facebook then authenticate with the API to get a JWT auth token
     const { authResponse } = await new Promise(window.FB.login);
     if (!authResponse) return;
-
-    // await apiAuthenticate(authResponse.accessToken);
-
-    // get return url from location state or default to home page
-    // const { from } = browserHistory.location.state || { from: { pathname: "/" } };
-    // browserHistory.push(from);
 }
-
-// async function apiAuthenticate(accessToken) {
-//     // authenticate with the api using a facebook access token,
-//     // on success the api returns an account object with a JWT auth token
-//     const response = await axios.post(`${baseUrl}/authenticate`, { accessToken });
-//     const account = response.data;
-//     accountSubject.next(account);
-//     startAuthenticateTimer();
-//     return account;
-// }
-
 
 function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
