@@ -16,7 +16,7 @@ import * as constants from './constants'
 
 function App() {
 
-  const [metaAuthenticated, setMetaAuthStatus] = useState(constants.UNAUTHENTICATED);
+  const [metaAuthStatus, setMetaAuthStatus] = useState(constants.UNAUTHENTICATED);
 
   useEffect(() => {
     console.log('Checking Auth Status')
@@ -25,21 +25,26 @@ function App() {
       console.log('Checked Auth Status')
       setMetaAuthStatus(authStatus)
     })
-    // TODO: Line 29 is reached asyncrhonously before 
+    // TODO: Line 30 is reached asyncrhonously before 
     // authStatus is updated from getFacebookLoginStatus()
-    console.log('Fetched Auth Status')
+    // It is also a route path bug as well
+
+    // TODO: Don't use routes - just use turnary operator 
+    // to decide between Login and Insights page
+    // You are not using routes properly...
+
+    console.log('Fetched Auth Status: ' + metaAuthStatus)
   }, [])
 
-  return (
-    <Router>
-      <Routes>
-        <Route path={constants.ROOT_PATH} element={(metaAuthenticated ? <Navigate to={constants.META_PAGE_INSIGHTS_PATH} /> :
-          <Navigate to={constants.META_LOGIN_PATH} />)} />
-        <Route exact path={constants.META_LOGIN_PATH} element={<MetaLogin />} />
-        <Route exact path={constants.META_PAGE_INSIGHTS_PATH} element={<MetaPageInsights />} />
-      </Routes>
-    </Router>
-  );
+  if (metaAuthStatus) {
+    return (
+      <MetaPageInsights />
+    );
+  } else {
+    return (
+      <MetaLogin />
+    );
+  }
 }
 
 export default App;

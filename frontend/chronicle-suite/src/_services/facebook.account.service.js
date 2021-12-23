@@ -1,14 +1,11 @@
 import env from '../env'
-
 import { BehaviorSubject } from 'rxjs';
 import axios from 'axios';
-
 import { browserHistory } from '../_helpers/browserHistory'
 
 import * as constants from './../constants'
 
 const facebookAppId = env.REACT_APP_FACEBOOK_APP_ID;
-
 const baseUrl = `${env.REACT_APP_API_URL}/accounts`;
 const accountSubject = new BehaviorSubject(null);
 
@@ -40,7 +37,6 @@ async function initFacebookSdk() {
         console.log('Integrated Facebook SDK!')
         resolve();
     });
-
 }
 
 
@@ -48,9 +44,8 @@ async function getFacebookLoginStatus() {
     await delay(constants.ONE_SEC);
     var status = constants.UNAUTHENTICATED;
 
-    window.FB.getLoginStatus((authResponse) => {
-        console.log(typeof authResponse)
-        if (authResponse) {
+    window.FB.getLoginStatus((response) => {
+        if (response.authResponse) {
             console.log('Getting user info...')
             window.FB.api('/me', function (response) {
                 console.log('Good to see you, ' + response.name + '.');
