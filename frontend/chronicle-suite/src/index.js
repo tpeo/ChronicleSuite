@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { initFacebookSdk } from './_helpers/initFacebookSDK'
 import { jwtInterceptor } from './_helpers/jwtInterceptor'
 import { errorInterceptor } from './_helpers/errorInterceptor';
 

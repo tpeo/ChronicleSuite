@@ -5,6 +5,8 @@ import axios from 'axios';
 
 import { browserHistory } from '../_helpers/browserHistory'
 
+import * as constants from './../constants'
+
 const facebookAppId = env.REACT_APP_FACEBOOK_APP_ID;
 
 const baseUrl = `${env.REACT_APP_API_URL}/accounts`;
@@ -13,12 +15,12 @@ const accountSubject = new BehaviorSubject(null);
 export const facebookAccountService = {
     login,
     initFacebookSdk,
-    // apiAuthenticate,
+    getFacebookLoginStatus,
 };
 
-function initFacebookSdk() {
+
+async function initFacebookSdk() {
     return new Promise(resolve => {
-        // wait for facebook sdk to initialize before starting the react app
         window.fbAsyncInit = function () {
             window.FB.init({
                 appId: facebookAppId,
@@ -26,23 +28,7 @@ function initFacebookSdk() {
                 xfbml: true,
                 version: 'v12.0'
             });
-
-            // auto authenticate with the api if already logged in with facebook
-            window.FB.getLoginStatus(({ authResponse }) => {
-                if (authResponse.accessToken) {
-                    // User has already logged in...
-                    window.FB.api('/me', function(response) {
-                        console.log('Good to see you, ' + response.name + '.');
-                        const userID = response.id
-                    });
-                    // Retrieve Page, Page Posts from 
-                    // User Access token
-                } else {
-                    resolve();
-                }
-            });
         };
-
         // load facebook sdk script
         (function (d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
@@ -50,9 +36,33 @@ function initFacebookSdk() {
             js = d.createElement(s); js.id = id;
             js.src = "https://connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));    
+        }(document, 'script', 'facebook-jssdk'));
+        console.log('Integrated Facebook SDK!')
+        resolve();
     });
+
 }
+
+
+async function getFacebookLoginStatus() {
+    await delay(constants.ONE_SEC);
+    var status = constants.UNAUTHENTICATED;
+
+    window.FB.getLoginStatus((authResponse) => {
+        console.log(typeof authResponse)
+        if (authResponse) {
+            console.log('Getting user info...')
+            window.FB.api('/me', function (response) {
+                console.log('Good to see you, ' + response.name + '.');
+            });
+            console.log('User already logged in...')
+            status = constants.AUTHENTICATED
+        }
+    });
+
+    return status;    
+}
+
 
 async function login() {
     // login with facebook then authenticate with the API to get a JWT auth token
@@ -75,3 +85,8 @@ async function login() {
 //     startAuthenticateTimer();
 //     return account;
 // }
+
+
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
