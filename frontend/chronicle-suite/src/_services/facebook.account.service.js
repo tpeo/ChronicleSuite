@@ -7,6 +7,7 @@ export const facebookAccountService = {
     login,
     initFacebookSdk,
     getFacebookLoginStatus,
+    getUserPageAccounts,
 };
 
 // Loads the Facebook SDK into the
@@ -42,22 +43,41 @@ async function getFacebookLoginStatus() {
 
     window.FB.getLoginStatus((response) => {
         if (response.authResponse) {
-            console.log('Getting user info...')
-            window.FB.api('/me', function (response) {
-                console.log('Good to see you, ' + response.name + '.');
-            });
+            window.FB.api(
+                '/me',
+                'GET',
+                { "fields": "id,name,email" },
+                function (response) {
+                    console.log('Good to see you, ' + response.name);
+                    console.log(response)
+                }
+            );
             status = constants.AUTHENTICATED
         }
     });
-
-    return status;    
+    return status;
 }
 
-
+// Login with facebook then authenticate with 
+// the API to get a JWT auth token
 async function login() {
-    // login with facebook then authenticate with the API to get a JWT auth token
-    const { authResponse } = await new Promise(window.FB.login);
+    const { authResponse } = await new Promise(window.FB.login(() => { },
+        { scope: 'read_insights, pages_show_list, pages_read_engagement' }));
     if (!authResponse) return;
+}
+
+// Gets the Page Account data of the 
+// current meta user 
+async function getUserPageAccounts() {
+    var accountsEndpoint = `/${window.FB.getAuthResponse().userID}/accounts`
+    window.FB.api(
+        accountsEndpoint,
+        function (response) {
+            if (response && !response.error) {
+                // Get Page meta data
+            }
+        }
+    );
 }
 
 function delay(time) {
