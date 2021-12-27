@@ -10,12 +10,14 @@ function App() {
   const [metaAuthStatus, setMetaAuthStatus] = useState(constants.UNAUTHENTICATED);
 
   useEffect(() => {
-    console.log('Checkinging Authentication Status')
-    facebookAccountService.getFacebookLoginStatus().then((authStatus) => {
-      console.log('Authentication Status: ' + authStatus)
-      setMetaAuthStatus(authStatus)
-    })
-    console.log('Fetched Authentication Status: ' + metaAuthStatus)
+    console.log('Checkinging Authentication Status');
+    async function getFacebookAuthStatus() {
+      var authStatus = await facebookAccountService.getFacebookLoginStatus();
+      setMetaAuthStatus(authStatus);
+      console.log('Authentication Status: ' + authStatus);
+    }
+    getFacebookAuthStatus();
+    console.log('Fetched and set authentication status: ' + metaAuthStatus);
   }, [])
 
   if (metaAuthStatus) {

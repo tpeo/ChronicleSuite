@@ -5,9 +5,12 @@ import { facebookAccountService } from './../../_services/facebook.account.servi
 
 function MetaPageInsights() {
 
-
   useEffect(() => {
-    facebookAccountService.getUserPageAccounts()
+    async function fetchPageInsights() {
+      var userAccounts = await facebookAccountService.getUserPageAccounts();
+      console.log(userAccounts);
+    }
+    fetchPageInsights();
   }, [])
 
   return (

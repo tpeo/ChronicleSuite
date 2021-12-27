@@ -66,18 +66,20 @@ async function login() {
     if (!authResponse) return;
 }
 
-// Gets the Page Account data of the 
+// Gets the  Page Account data of the 
 // current meta user 
 async function getUserPageAccounts() {
     var accountsEndpoint = `/${window.FB.getAuthResponse().userID}/accounts`
+    var pageDataResponse = constants.ERROR_RESPONSE;
     window.FB.api(
         accountsEndpoint,
         function (response) {
             if (response && !response.error) {
-                // Get Page meta data
+                pageDataResponse = response;
             }
         }
     );
+    return pageDataResponse;
 }
 
 function delay(time) {
