@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import './../../App.css'
 import { facebookAccountService } from './../../_services/facebook.account.service';
-
+import * as constants from './../../constants'
 
 function MetaPageInsights() {
 
   useEffect(() => {
     async function fetchPageInsights() {
-      var userAccounts = await facebookAccountService.getUserPageAccounts();
-      console.log(userAccounts);
+      await facebookAccountService.getPageInsights(constants.FLEXCEL_PAGE_NAME);
     }
     fetchPageInsights();
   }, [])
