@@ -4,11 +4,14 @@ export const AUTHENTICATED = true;
 export const UNAUTHENTICATED = false;
 
 // Endpoints 
-export const ROOT_PATH = '/'
-export const META_LOGIN_PATH = '/metaLogin'
-export const META_PAGE_INSIGHTS_PATH = 'metaPageInsights'
-export const USER_ACCOUNTS_ENDPOINT_PATH = '/accounts'
-export const PUBLISHED_POSTS_ENDPOINT_PATH = '/published_posts'
+export const POST_REQUEST = 'POST';
+export const GET_REQUEST = 'GET';
+export const ROOT_PATH = '/';
+export const META_LOGIN_PATH = '/metaLogin';
+export const META_PAGE_INSIGHTS_PATH = 'metaPageInsights';
+export const USER_ACCOUNTS_ENDPOINT_PATH = '/accounts';
+export const PUBLISHED_POSTS_ENDPOINT_PATH = '/published_posts';
+export const PAGE_POST_LIKES_TOTAL_ENDPOINT_PATH = '/insights/?metric=["post_reactions_by_type_total"]&access_token=';
 
 
 export const ONE_SEC = 1000;
@@ -31,3 +34,6 @@ export const PAGES_SHOW_LIST_PERMISSION = 'pages_show_list';
 export const PAGES_READ_ENGAGEMENT_PERMISSION = 'pages_read_engagement'
 
 export const LOGIN_PERMISSION_SCOPE = 'read_insights, pages_manage_posts, pages_show_list, pages_read_engagement';
+
+// Post Metadata
+export const FACEBOOK_PLATFORM = 'Facebook';

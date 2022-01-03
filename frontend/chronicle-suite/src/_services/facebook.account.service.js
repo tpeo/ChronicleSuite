@@ -69,32 +69,94 @@ async function login() {
 }
 // Get page insights of the given 
 // page name
-async function getPageInsights(pageName) {
+async function getPageInsights(pageName, setPublishedPostsInsightsSignal) {
     // Get page accounts of user
     var accountsEndpoint = `/${window.FB.getAuthResponse().userID}${constants.USER_ACCOUNTS_ENDPOINT_PATH}`
     console.log(accountsEndpoint)
+    // Get page accounts of this user
     window.FB.api(
         accountsEndpoint,
         function (response) {
             if (response && !response.error) {
+                // Get Page ID and Page Access Token
+                // of the requested pageName of Page Insights
                 var pageIdAndAccessToken = utils.getPageIdAndAccessToken(response.data, pageName);
                 var pageId = pageIdAndAccessToken[constants.PAGE_ID_INDEX];
                 var pageAccessToken = pageIdAndAccessToken[constants.PAGE_ACCESS_TOKEN_INDEX];
+                console.log('Flexcel Page ID: ' + pageId)
                 console.log(pageName + ' Posts');
                 var publishedPostsEndpoint = `/${pageId}${constants.PUBLISHED_POSTS_ENDPOINT_PATH}`;
+
+                // Get Page Insights of this page 
+
+                // Get published posts insights of this page
                 window.FB.api(
                     publishedPostsEndpoint,
-                    {access_token: pageAccessToken},
+                    { access_token: pageAccessToken },
                     function (response) {
                         if (response && !response.error) {
-                            console.log(response);
+                            getPagePostsInsights(pageAccessToken, response.data, setPublishedPostsInsightsSignal);
+                            console.log(response)
                         }
                     }
                 );
+            } else {
+                // Log errors
+                console.log(response);
             }
         }
     );
 }
+
+
+// Gets the page posts insights and sends
+// the data to the frontend
+async function getPagePostsInsights(pageAccessToken, pagePostsNodes, setPublishedPostsInsightsSignal) {
+    for (var i = 0; i < pagePostsNodes.length; i++) {
+        var postId = pagePostsNodes[i].id;
+        // Get Post Metadata (Refer to Tech Spec)
+
+        // Make a batch request to get post meta data
+        // and post insights from PagePost node
+
+        // Get meta data of post
+        // Need to reformat date to be
+        // user readable
+        var postCreatedTime = pagePostsNodes[i].created_time;
+        // Extract date and time from postCreatedTime
+        var caption = pagePostsNodes[i].message;
+        var platform = constants.FACEBOOK_PLATFORM;
+
+        // Get post link
+        window.FB.api(
+            `/${postId}/`,
+            constants.POST_REQUEST,
+            {
+                batch: [
+                    {
+                        method: constants.GET_REQUEST,
+                        relative_url: `/${postId}/?fields=permalink_url,full_picture`
+                    },
+                    {
+                        method: constants.GET_REQUEST,
+                        relative_url: `/${postId}${constants.PAGE_POST_LIKES_TOTAL_ENDPOINT_PATH}${pageAccessToken}`,
+                    },
+                    
+                    
+                ],
+                include_headers: false,
+            },
+            function (response) {
+                console.log(response);
+            }
+        );
+
+        // Get insights of post (number of likes, comments)
+
+        console.log(postId + ' ' + postCreatedTime + ' ' + caption);
+    }
+}
+
 
 
 function delay(time) {
