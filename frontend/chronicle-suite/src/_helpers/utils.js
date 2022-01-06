@@ -14,10 +14,10 @@ export const utils = {
 function getPageIdAndAccessToken(accountsData, pageName) {
     for (var i = 0; i < accountsData.length; i++) {
         var curPageData = accountsData[i];
-        if (curPageData.name == pageName) 
+        if (curPageData.name == pageName)
             return [curPageData.id, curPageData.access_token]
     }
-    return constants.PAGE_NOT_FOUND 
+    return constants.PAGE_NOT_FOUND
 }
 
 
@@ -25,7 +25,11 @@ function getPageIdAndAccessToken(accountsData, pageName) {
 // and time from ISO date format (2019-07-16T15:21:56+0000)
 function getDateAndTimeFromISOTimestamp(isoTimestamp) {
     var d = new Date(isoTimestamp);
-    var dateStr = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-    var timeStr = d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    var dateStr = d.getFullYear() + constants.HYPHEN + (d.getMonth() + 1)
+        + constants.HYPHEN + d.getDate();
+    var timeStr = d.toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric', hour12: true
+    });
     return [dateStr, timeStr];
 }

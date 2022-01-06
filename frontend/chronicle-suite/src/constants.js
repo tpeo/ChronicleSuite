@@ -37,3 +37,14 @@ export const LOGIN_PERMISSION_SCOPE = 'read_insights, pages_manage_posts, pages_
 
 // Post Metadata
 export const FACEBOOK_PLATFORM = 'Facebook';
+
+
+// Utils
+export const CHAI_IMPORT = 'chai';
+export const HYPHEN = '-';
+
+
+// Unit Tests
+// getDateAndTimeFromISOTimestamp()
+export const ISO_TIMESTAMP_0 = '2019-07-16T15:21:56+0000';
+export const ISO_DATE_TIME_STR_0 = ['2019-7-16', '9:21 AM'];
