@@ -48,7 +48,7 @@ async function getFacebookLoginStatus() {
         if (response.authResponse) {
             window.FB.api(
                 '/me',
-                'GET',
+                constants.GET_REQUEST,
                 { "fields": "id,name,email" },
                 function (response) {
                     console.log('Good to see you, ' + response.name);
@@ -77,6 +77,7 @@ async function getPageInsights(pageName, setPublishedPostsInsightsSignal) {
     window.FB.api(
         accountsEndpoint,
         function (response) {
+            console.log(response);
             if (response && !response.error) {
                 // Get Page ID and Page Access Token
                 // of the requested pageName of Page Insights
@@ -100,9 +101,6 @@ async function getPageInsights(pageName, setPublishedPostsInsightsSignal) {
                         }
                     }
                 );
-            } else {
-                // Log errors
-                console.log(response);
             }
         }
     );
@@ -116,9 +114,6 @@ async function getPagePostsInsights(pageAccessToken, pagePostsNodes, setPublishe
         var postId = pagePostsNodes[i].id;
         // Get Post Metadata (Refer to Tech Spec)
 
-        // Make a batch request to get post meta data
-        // and post insights from PagePost node
-
         // Get meta data of post
         // Need to reformat date to be
         // user readable
@@ -126,23 +121,35 @@ async function getPagePostsInsights(pageAccessToken, pagePostsNodes, setPublishe
         // Extract date and time from postCreatedTime
         var caption = pagePostsNodes[i].message;
         var platform = constants.FACEBOOK_PLATFORM;
+        
 
-        // Get post link
+        // Make a batch request to get post meta data
+        // and post insights from PagePost node
+        // This is a very expensive call :(
         window.FB.api(
             `/${postId}/`,
             constants.POST_REQUEST,
             {
                 batch: [
                     {
+                        // Get post url and icon
                         method: constants.GET_REQUEST,
-                        relative_url: `/${postId}/?fields=permalink_url,full_picture`
+                        relative_url: `${postId}/?fields=permalink_url,full_picture`
                     },
                     {
+                        // Get post likes count 
                         method: constants.GET_REQUEST,
-                        relative_url: `/${postId}${constants.PAGE_POST_LIKES_TOTAL_ENDPOINT_PATH}${pageAccessToken}`,
+                        relative_url: `${postId}/${constants.PAGE_POST_LIKES_TOTAL_ENDPOINT_PATH}${pageAccessToken}`,
                     },
-                    
-                    
+                    // Get post comments count
+                    {
+                        method: constants.GET_REQUEST,
+                        relative_url: `${postId}/comments/?summary=1&access_token=${pageAccessToken}`
+                    },
+                    // Get post impressions
+                    // Get post engagement
+                    // Get attached link clicks count
+
                 ],
                 include_headers: false,
             },

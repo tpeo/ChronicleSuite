@@ -33,7 +33,7 @@ export const PAGES_MANAGE_POSTS_PERMISSIONS = 'pages_manage_posts';
 export const PAGES_SHOW_LIST_PERMISSION = 'pages_show_list';
 export const PAGES_READ_ENGAGEMENT_PERMISSION = 'pages_read_engagement'
 
-export const LOGIN_PERMISSION_SCOPE = 'read_insights, pages_manage_posts, pages_show_list, pages_read_engagement';
+export const LOGIN_PERMISSION_SCOPE = 'read_insights, pages_manage_posts, pages_show_list, pages_read_engagement, pages_read_user_content, pages_manage_engagement';
 
 // Post Metadata
 export const FACEBOOK_PLATFORM = 'Facebook';
