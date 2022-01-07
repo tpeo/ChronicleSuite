@@ -1,10 +1,10 @@
 const express = require('express');
 const session = require('express-session');
 var cors = require('cors');
-const TwitterApi = require('twitter-api-v2');
+const TwitterApi = require('twitter-api-v2').default;
 require('dotenv').config();
 const app = express();
-const port = 4000;
+const port = process.env.port;
 
 app.use(
 	session({ resave: false, saveUninitialized: true, secret: process.env.EXPRESS_SECRET, cookie: { secure: false } })
@@ -36,10 +36,13 @@ app.get('/callback', (req, res) => {
 	}
 
 	// Obtain access token
-	const client = new TwitterApi({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
+	const client = new TwitterApi({
+		clientId: process.env.TWITTER_CLIENT_ID,
+		clientSecret: process.env.TWITTER_CLIENT_SECRET,
+	});
 
 	client
-		.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
+		.loginWithOAuth2({ code, codeVerifier, redirectUri: `${process.env.API_URL}/callback` })
 		.then(async ({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
 			// {loggedClient} is an authenticated client in behalf of some user
 			// Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
@@ -47,6 +50,8 @@ app.get('/callback', (req, res) => {
 
 			// Example request
 			const { data: userObject } = await loggedClient.v2.me();
+			console.log(userObject);
+			res.send(userObject);
 		})
 		.catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });
