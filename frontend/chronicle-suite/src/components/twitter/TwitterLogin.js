@@ -11,7 +11,11 @@ const TwitterLogin = () => {
 		scope: scopes,
 	});
 
-	return <button href={url}>Login with Twitter</button>;
+	return (
+		<a href={url}>
+			<button>Login with Twitter</button>
+		</a>
+	);
 };
 
 export default TwitterLogin;
