@@ -1,8 +1,9 @@
 {
-  "dependencies": {
-    "https-browserify": "^1.0.0",
-    "react-router-dom": "^6.2.1",
-    "stream-http": "^3.2.0",
-    "twitter-api-v2": "^1.9.0"
-  }
+	"proxy": "http://localhost:4000",
+	"dependencies": {
+		"https-browserify": "^1.0.0",
+		"react-router-dom": "^6.2.1",
+		"stream-http": "^3.2.0",
+		"twitter-api-v2": "^1.9.0"
+	}
 }
