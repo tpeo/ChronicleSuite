@@ -8,10 +8,17 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "types": [
+      "facebook-js-sdk"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
   },
   "compileOnSave": true,
   "include": [
-    "src"
-  ]
+    "src",
+    "index.js"
+  ],
 }
