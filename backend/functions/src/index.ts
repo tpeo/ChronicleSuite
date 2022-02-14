@@ -5,18 +5,14 @@ import admin = require("firebase-admin");
 import { getFirestore, Timestamp, FieldValue } from "firebase-admin/firestore";
 import { auth } from "firebase-admin";
 
-import "facebook-js-sdk";
+import "@types/facebook-js-sdk";
+import { user } from "firebase-functions/v1/auth";
 
 admin.initializeApp();
 const db = getFirestore();
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
-//
-export const helloWorld = functions.https.onRequest((request, response) => {
-	functions.logger.info("Hello logs!", { structuredData: true });
-	response.send("Hello from Firebase!");
-});
 
 // Take the text parameter passed to this HTTP endpoint and insert it into
 // Firestore under the path /messages/:documentId/original
@@ -59,16 +55,24 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 		client_id: clientId,
 		client_secret: clientSecret,
 	});
-
 	const url = new URL("https://graph.facebook.com/oauth/access_token" + params.toString());
 
+	// TODO: fix typescript import
 	const response: AuthResponse = await (await fetch(url.toString())).json();
-
 	const longAccessToken = response.accessToken;
-
 	const writeResult = await admin.firestore().collection("users").add({ metaAuthToken: longAccessToken });
-
 	res.json({ result: `Data with ID: ${writeResult.id} added.` });
+});
+
+exports.getUserInfo = functions.https.onRequest(async (req, res) => {
+	// TODO: get user access token from firestore db
+	const userAccessToken = "";
+	const params = new URLSearchParams({ access_token: userAccessToken });
+	const url = new URL("https://graph.facebook.com/me" + params.toString());
+
+	const response = await (await fetch(url.toString())).json();
+
+	res.json({ response });
 });
 
 exports.getPageInsights = functions.firestore.document("/users/{documentId}").onCreate((snap, context) => {
@@ -85,3 +89,4 @@ exports.getPageInsights = functions.firestore.document("/users/{documentId}").on
 	// Setting an 'uppercase' field in Firestore document returns a Promise.
 	return snap.ref.set({ uppercase }, { merge: true });
 });
+
