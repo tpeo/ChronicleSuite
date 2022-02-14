@@ -11,38 +11,7 @@ import { user } from "firebase-functions/v1/auth";
 admin.initializeApp();
 const db = getFirestore();
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-
-// Take the text parameter passed to this HTTP endpoint and insert it into
-// Firestore under the path /messages/:documentId/original
-exports.addMessage = functions.https.onRequest(async (req, res) => {
-	// Grab the text parameter.
-	const original = req.query.text;
-	// Push the new message into Firestore using the Firebase Admin SDK.
-	const writeResult = await admin.firestore().collection("messages").add({ original: original });
-	// Send back a message that we've successfully written the message
-	res.json({ result: `Message with ID: ${writeResult.id} added.` });
-});
-
-// // Listens for new messages added to /messages/:documentId/original and creates an
-// // uppercase version of the message to /messages/:documentId/uppercase
-// exports.makeUppercase = functions.firestore.document("/messages/{documentId}").onCreate((snap, context) => {
-// 	functions.logger.log("Running Uppercasing");
-
-// 	// Grab the current value of what was written to Firestore.
-// 	const original = snap.data().original;
-
-// 	// Access the parameter `{documentId}` with `context.params`
-// 	functions.logger.log("Uppercasing", context.params.documentId, original);
-
-// 	const uppercase = original.toUpperCase();
-
-// 	// You must return a Promise when performing asynchronous tasks inside a Functions such as
-// 	// writing to Firestore.
-// 	// Setting an 'uppercase' field in Firestore document returns a Promise.
-// 	return snap.ref.set({ uppercase }, { merge: true });
-// });
+// TODO: set response types for fetch functions
 
 exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	const shortAccessToken = req.query.token;
@@ -61,7 +30,7 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	const response: AuthResponse = await (await fetch(url.toString())).json();
 	const longAccessToken = response.accessToken;
 	const writeResult = await admin.firestore().collection("users").add({ metaAuthToken: longAccessToken });
-	res.json({ result: `Data with ID: ${writeResult.id} added.` });
+	res.json({ result: `Access Token with ID: ${writeResult.id} added.` });
 });
 
 exports.getUserInfo = functions.https.onRequest(async (req, res) => {
@@ -71,22 +40,53 @@ exports.getUserInfo = functions.https.onRequest(async (req, res) => {
 	const url = new URL("https://graph.facebook.com/me" + params.toString());
 
 	const response = await (await fetch(url.toString())).json();
-
-	res.json({ response });
+	// TODO: add info to existing user document
+	const writeResult = await admin.firestore().collection("users").add({ userInfo: response });
+	res.json({ result: `User Info with ID: ${writeResult.id} added.` });
 });
 
-exports.getPageInsights = functions.firestore.document("/users/{documentId}").onCreate((snap, context) => {
-	// Grab the current value of what was written to Firestore.
-	const original = snap.data().original;
+exports.getPageInsights = functions.https.onRequest(async (req, res) => {
+	const pageName = req.query.page_name;
+	// TODO: get user access token from firestore db
+	const userAccessToken = "";
 
-	// Access the parameter `{documentId}` with `context.params`
-	functions.logger.log("Uppercasing", context.params.documentId, original);
+	const params = new URLSearchParams({ access_token: userAccessToken });
+	const url = new URL("https://graph.facebook.com/v13.0/{user-id}/accounts" + params.toString());
 
-	const uppercase = original.toUpperCase();
+	const response = await (await fetch(url.toString())).json();
 
-	// You must return a Promise when performing asynchronous tasks inside a Functions such as
-	// writing to Firestore.
-	// Setting an 'uppercase' field in Firestore document returns a Promise.
-	return snap.ref.set({ uppercase }, { merge: true });
+	const pages = response.data;
+
+	let pageId;
+	let pageAccessToken;
+
+	for (let i = 0; i < pages.length; i++) {
+		const curPage = pages[i];
+		if (curPage.name == pageName) pageId = curPage.id;
+		pageAccessToken = curPage.access_token;
+	}
+
+	// TODO: add info to existing user document
+	const writeResult = await admin
+		.firestore()
+		.collection("users")
+		.add({ pageId: pageId, pageAccessToken: pageAccessToken });
+	res.json({ result: `Page Insights with ID: ${writeResult.id} added.` });
 });
 
+
+exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
+	// TODO: get pageAccessToken from firestore db
+	const pageAccessToken = "";
+
+
+	const params = new URLSearchParams({access_token: pageAccessToken})
+	// ? Might have to change v13.0 to v12.0
+	const url = new URL("https://graph.facebook.com/v13.0/{page-id}/published_posts" + params.toString());
+
+	const response = await (await fetch(url.toString())).json();
+
+	const pagePosts = response.data;
+
+	
+});
