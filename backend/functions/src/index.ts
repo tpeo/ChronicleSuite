@@ -74,19 +74,53 @@ exports.getPageInsights = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Page Insights with ID: ${writeResult.id} added.` });
 });
 
-
 exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
-	// TODO: get pageAccessToken from firestore db
+	// TODO: get values from firestore db
+	const pageId = "";
 	const pageAccessToken = "";
+	const accessToken = "";
 
-
-	const params = new URLSearchParams({access_token: pageAccessToken})
+	let params = new URLSearchParams({ access_token: accessToken });
 	// ? Might have to change v13.0 to v12.0
-	const url = new URL("https://graph.facebook.com/v13.0/{page-id}/published_posts" + params.toString());
+	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts` + params.toString());
 
-	const response = await (await fetch(url.toString())).json();
+	let response = await (await fetch(url.toString())).json();
 
 	const pagePosts = response.data;
 
-	
+	for (let i = 0; i < pagePosts.length; i++) {
+		const postId = pagePosts[i].id;
+
+		const batch = [
+			{
+				// Get post url and icon
+				method: "GET",
+				relative_url: new URLSearchParams(
+					{ fields: "permalink_url,full_picture", access_token: accessToken }.toString()
+				),
+			},
+			{
+				// Get post likes count
+				method: "GET",
+				relative_url:
+					"/insights" +
+					new URLSearchParams({
+						metric: "post_reactions_by_type_total",
+						access_token: accessToken,
+					}).toString(),
+			},
+			// Get post comments count
+			{
+				method: "GET",
+				relative_url: "/comments" + new URLSearchParams({ summary: "1", access_token: accessToken }).toString(),
+			},
+		];
+
+		params = new URLSearchParams({ batch: batch.toString() });
+		url = new URL(`"https://graph.facebook.com/v13.0/${postId}` + params.toString());
+
+		response = await (await fetch(url.toString())).json();
+
+		// TODO: write response insights to db and return in res.json
+	}
 });
