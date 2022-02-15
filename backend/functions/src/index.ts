@@ -12,6 +12,7 @@ admin.initializeApp();
 const db = getFirestore();
 
 // TODO: set response types for fetch functions
+// TODO: cache firebase user document id, pageId, etc.
 
 exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	const shortAccessToken = req.query.token;
