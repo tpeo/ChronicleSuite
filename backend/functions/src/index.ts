@@ -7,6 +7,10 @@ import * as functions from "firebase-functions";
 import "@types/facebook-js-sdk";
 
 
+
+admin.initializeApp();
+const db = getFirestore();
+
 // admin.initializeApp();
 // const db = getFirestore();
 
