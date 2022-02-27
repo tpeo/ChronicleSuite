@@ -1,17 +1,13 @@
+/* eslint-disable camelcase */
 import * as functions from "firebase-functions";
 
 // The Firebase Admin SDK to access Firestore.
-// import admin = require("firebase-admin");
+import admin = require("firebase-admin");
 // import { getFirestore } from "firebase-admin/firestore";
 
-import "@types/facebook-js-sdk";
-
-
+import "facebook-js-sdk";
 
 admin.initializeApp();
-const db = getFirestore();
-
-// admin.initializeApp();
 // const db = getFirestore();
 
 // TODO: Test generation of long term access token
@@ -19,12 +15,11 @@ const db = getFirestore();
 
 // TODO: Store ltat in Firebase DB
 
-// Gets long term access token for Meta Authentiation 
-// from ChronicleSuite frontend and stores it in 
+// Gets long term access token for Meta Authentiation
+// from ChronicleSuite frontend and stores it in
 // Firebase DB
 // https://developers.facebook.com/docs/pages/access-tokens/
 exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
-
 	// Check if Meta Auth Token (long term access token)
 	// is stored in Firebase DB
 
@@ -33,11 +28,10 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 
 	if (!metaAuthShortTermAccessToken) {
 		res.json({ result: "Short Term Access Token undefined" });
-		return
+		return;
 	}
 
-		
-	// Get long term access token 
+	// Get long term access token
 	const params = new URLSearchParams({
 		grant_type: "fb_exchange_token",
 		client_id: "615658026307974",
@@ -49,101 +43,113 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	// TODO: fix typescript import
 	const response: facebook.AuthResponse = await (await fetch(url.toString())).json();
 	const longTermAccessToken = response.accessToken;
-	// Store long term access token in Firebase DB
 
-	// const writeResult = await admin.firestore().collection("users").add({ metaAuthToken: longAccessToken });
+	// getUserInfo for user id
+	const userID = "";
+
+	// Store long term access token in Firebase DB
+	const writeResult = await admin
+		.firestore()
+		.collection("users")
+		.doc(userID)
+		.create({ metaAuthToken: longTermAccessToken });
 
 	res.json({ result: `Access Token with ID: ${longTermAccessToken} added.` });
 });
 
-// exports.getUserInfo = functions.https.onRequest(async (req, res) => {
-// 	// TODO: get user access token from firestore db
-// 	const userAccessToken = "";
-// 	const params = new URLSearchParams({ access_token: userAccessToken });
-// 	const url = new URL("https://graph.facebook.com/me" + params.toString());
+exports.getUserInfo = functions.https.onRequest(async (req, res) => {
+	// TODO: get userID from cache/frontend?
+	const userID = "";
+	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
+	const params = new URLSearchParams({ access_token: userAccessToken });
+	const url = new URL("https://graph.facebook.com/me" + params.toString());
 
-// 	const response = await (await fetch(url.toString())).json();
-// 	// TODO: add info to existing user document
-// 	const writeResult = await admin.firestore().collection("users").add({ userInfo: response });
-// 	res.json({ result: `User Info with ID: ${writeResult.id} added.` });
-// });
+	// ? User has type any
+	const response: facebook.User = await (await fetch(url.toString())).json();
+	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userInfo: response });
+	res.json({ result: `User Info with ID: ${writeResult} added.` });
+});
 
-// exports.getPageInsights = functions.https.onRequest(async (req, res) => {
-// 	const pageName = req.query.page_name;
-// 	// TODO: get user access token from firestore db
-// 	const userAccessToken = "";
+interface Page {
+	id: string;
+	name: string;
+	access_token: string;
+}
 
-// 	const params = new URLSearchParams({ access_token: userAccessToken });
-// 	const url = new URL("https://graph.facebook.com/v13.0/{user-id}/accounts" + params.toString());
+exports.getPageInsights = functions.https.onRequest(async (req, res) => {
+	const pageName = req.query.page_name;
+	// TODO: get userID from cache/frontend?
+	const userID = "";
+	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 
-// 	const response = await (await fetch(url.toString())).json();
+	const params = new URLSearchParams({ access_token: userAccessToken });
+	const url = new URL("https://graph.facebook.com/v13.0/{user-id}/accounts" + params.toString());
 
-// 	const pages = response.data;
+	const response = await (await fetch(url.toString())).json();
 
-// 	let pageId;
-// 	let pageAccessToken;
+	const pages = response.data;
 
-// 	for (let i = 0; i < pages.length; i++) {
-// 		const curPage = pages[i];
-// 		if (curPage.name == pageName) pageId = curPage.id;
-// 		pageAccessToken = curPage.access_token;
-// 	}
+	const { id: pageId, access_token: pageAccessToken } = pages.find((page: Page) => page.name == pageName);
 
-// 	// TODO: add info to existing user document
-// 	const writeResult = await admin
-// 		.firestore()
-// 		.collection("users")
-// 		.add({ pageId: pageId, pageAccessToken: pageAccessToken });
-// 	res.json({ result: `Page Insights with ID: ${writeResult.id} added.` });
-// });
+	const writeResult = await admin
+		.firestore()
+		.collection("users")
+		.doc(userID)
+		.set({ pageId: pageId, pageAccessToken: pageAccessToken });
+	res.json({ result: `Page Insights with ID: ${writeResult} added.` });
+});
 
-// exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
-// 	// TODO: get values from firestore db
-// 	const pageId = "";
-// 	const pageAccessToken = "";
-// 	const accessToken = "";
+exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
+	// TODO: get userID from cache/frontend?
+	const userID = "";
+	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
+	if (!user) return res.json({ result: `User with ID ${userID} doesn't exist` });
 
-// 	let params = new URLSearchParams({ access_token: accessToken });
-// 	// ? Might have to change v13.0 to v12.0
-// 	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts` + params.toString());
+	const pageId = user.pageId;
+	const pageAccessToken = user.pageAccessToken;
+	const accessToken = user.metaAuthToken;
 
-// 	let response = await (await fetch(url.toString())).json();
+	let params = new URLSearchParams({ access_token: accessToken });
+	// ? Might have to change v13.0 to v12.0
+	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts` + params.toString());
 
-// 	const pagePosts = response.data;
+	let response = await (await fetch(url.toString())).json();
 
-// 	for (let i = 0; i < pagePosts.length; i++) {
-// 		const postId = pagePosts[i].id;
+	const pagePosts = response.data;
 
-// 		const batch = [
-// 			{
-// 				// Get post url and icon
-// 				method: "GET",
-// 				relative_url: new URLSearchParams(
-// 					{ fields: "permalink_url,full_picture", access_token: accessToken }.toString()
-// 				),
-// 			},
-// 			{
-// 				// Get post likes count
-// 				method: "GET",
-// 				relative_url:
-// 					"/insights" +
-// 					new URLSearchParams({
-// 						metric: "post_reactions_by_type_total",
-// 						access_token: accessToken,
-// 					}).toString(),
-// 			},
-// 			// Get post comments count
-// 			{
-// 				method: "GET",
-// 				relative_url: "/comments" + new URLSearchParams({ summary: "1", access_token: accessToken }).toString(),
-// 			},
-// 		];
+	for (let i = 0; i < pagePosts.length; i++) {
+		const postId = pagePosts[i].id;
 
-// 		params = new URLSearchParams({ batch: batch.toString() });
-// 		url = new URL(`"https://graph.facebook.com/v13.0/${postId}` + params.toString());
+		const batch = [
+			{
+				// Get post url and icon
+				method: "GET",
+				relative_url: new URLSearchParams(
+					{ fields: "permalink_url,full_picture", access_token: accessToken }.toString()
+				),
+			},
+			{
+				// Get post likes count
+				method: "GET",
+				relative_url:
+					"/insights" +
+					new URLSearchParams({
+						metric: "post_reactions_by_type_total",
+						access_token: accessToken,
+					}).toString(),
+			},
+			// Get post comments count
+			{
+				method: "GET",
+				relative_url: "/comments" + new URLSearchParams({ summary: "1", access_token: accessToken }).toString(),
+			},
+		];
 
-// 		response = await (await fetch(url.toString())).json();
+		params = new URLSearchParams({ batch: batch.toString() });
+		url = new URL(`"https://graph.facebook.com/v13.0/${postId}` + params.toString());
 
-// 		// TODO: write response insights to db and return in res.json
-// 	}
-// });
+		response = await (await fetch(url.toString())).json();
+
+		// TODO: write response insights to db and return in res.json
+	}
+});
