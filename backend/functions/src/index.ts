@@ -103,7 +103,10 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	// TODO: get userID from cache/frontend?
 	const userID = "";
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
-	if (!user) return res.json({ result: `User with ID ${userID} doesn't exist` });
+	if (!user) {
+		res.json({ result: `User with ID ${userID} doesn't exist` });
+		return;
+	}
 
 	const pageId = user.pageId;
 	const pageAccessToken = user.pageAccessToken;
