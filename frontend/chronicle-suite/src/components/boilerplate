@@ -1,0 +1,15 @@
+import { createStyles } from '@mantine/core';
+import { useState, useEffect } from 'react';
+
+const useStyles = createStyles((theme, _params, getRef) => {
+    return {
+    };
+  });
+
+export default function BOILERPLATE(props) {
+    const { classes } = useStyles()
+
+    return (
+        <></>
+    );
+}
