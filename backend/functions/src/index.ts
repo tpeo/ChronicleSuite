@@ -5,7 +5,7 @@ import * as functions from "firebase-functions";
 import admin = require("firebase-admin");
 // import { getFirestore } from "firebase-admin/firestore";
 
-import "facebook-js-sdk";
+// import "@types/facebook-js-sdk";
 
 admin.initializeApp();
 // const db = getFirestore();
@@ -13,7 +13,21 @@ admin.initializeApp();
 // TODO: Test generation of long term access token
 // Get ltat, call /me endpoint to get user name, send to ChronicleSutie
 
-// TODO: Store ltat in Firebase DB
+// TODO: Store long term access token in Firebase DB
+
+exports.getUserID = functions.https.onRequest(async (req, res) => {
+	const accessToken: string | undefined = req?.query?.token?.toString();
+	if (!accessToken) {
+		res.json({ result: "Access Token undefined" });
+		return;
+	}
+	const params = new URLSearchParams({ access_token: accessToken });
+	const url = new URL("https://graph.facebook.com/me" + params.toString());
+
+	// ? User has type any
+	const response: facebook.User = await (await fetch(url.toString())).json();
+	res.json({ id: response.id });
+});
 
 // Gets long term access token for Meta Authentiation
 // from ChronicleSuite frontend and stores it in
@@ -34,7 +48,7 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	// Get long term access token
 	const params = new URLSearchParams({
 		grant_type: "fb_exchange_token",
-		client_id: "615658026307974",
+		client_id: "1017960119077876",
 		client_secret: "cffd590264e00c3a6461eb18db460852",
 		fb_exchange_token: metaAuthShortTermAccessToken,
 	});
@@ -48,13 +62,9 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	const userID = "";
 
 	// Store long term access token in Firebase DB
-	const writeResult = await admin
-		.firestore()
-		.collection("users")
-		.doc(userID)
-		.create({ metaAuthToken: longTermAccessToken });
+	await admin.firestore().collection("users").doc(userID).create({ metaAuthToken: longTermAccessToken });
 
-	res.json({ result: `Access Token with ID: ${longTermAccessToken} added.` });
+	res.json({ result: `Access Token ${longTermAccessToken} added.` });
 });
 
 exports.getUserInfo = functions.https.onRequest(async (req, res) => {
@@ -109,7 +119,7 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	}
 
 	const pageId = user.pageId;
-	const pageAccessToken = user.pageAccessToken;
+	// const pageAccessToken = user.pageAccessToken;
 	const accessToken = user.metaAuthToken;
 
 	let params = new URLSearchParams({ access_token: accessToken });
