@@ -20,7 +20,7 @@ async function initFacebookSdk() {
 				appId: facebookAppId,
 				cookie: true,
 				xfbml: true,
-				version: "v12.0",
+				version: "v13.0",
 			});
 		};
 		// load facebook sdk script
@@ -64,14 +64,8 @@ async function getFacebookLoginStatus() {
 async function login() {
 	const { authResponse } = await new Promise(window.FB.login(() => {}, { scope: constants.LOGIN_PERMISSION_SCOPE }));
 	if (!authResponse) return console.log("no Auth Response");
-
-	const params = new URLSearchParams({ access_token: authResponse.accessToken });
-	const url = new URL("https://us-central1-chroniclesuite.cloudfunctions.net/getUserID" + params.toString());
-	const response = await (await fetch(url.toString())).json();
-	if (!response) return console.log("no ID Response");
-
-	console.log(response.id);
 }
+
 // Get page insights of the given
 // page name
 async function getPageInsights(pageName, setPublishedPostsInsightsSignal) {
