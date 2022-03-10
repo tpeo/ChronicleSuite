@@ -1,6 +1,7 @@
-import { createStyles, Global, AppShell, Navbar, Header, Container, Group, Grid, Image } from '@mantine/core';
-import { Outlet } from 'react-router-dom';
-import { FLEXCEL_PAGE_NAME } from '../../constants';
+import { createStyles, Global, AppShell, Navbar, Header, Container, Group, Grid, Image, Tabs } from '@mantine/core';
+import { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+
 
 const useStyles = createStyles((theme, _params, getRef) => {
     return {
@@ -13,13 +14,41 @@ const useStyles = createStyles((theme, _params, getRef) => {
         AppShellMain: {
             minHeight: 'calc(100vh - 70px)',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            padding: '0'
+        },
+        TabsListWrapper: {
+            padding: "10px 10px 0"
         }
     };
   });
 
 export default function DefaultLayout(props) {
+    const [activeTab, setActiveTab] = useState(0);
+
     const { classes } = useStyles()
+    const navigate = useNavigate()
+
+    function onChange(active) {
+        setActiveTab(active);
+        switch(active) {
+            case 0:
+                navigate("overview")
+                break
+            case 1:
+                navigate("facebook")
+                break
+            case 2:
+                navigate("instagram")
+                break
+            case 3:
+                navigate("twitter")
+                break
+            default:
+                alert('error with tab navigation')
+                break
+        }
+    };
 
     const HeaderContent = <>
         <Group>
@@ -37,7 +66,26 @@ export default function DefaultLayout(props) {
                     main: classes.AppShellMain,
                   }}
             >
-                <Outlet></Outlet>
+                {
+                    props.tabs ? 
+                    <Tabs tabPadding="md" active={activeTab} onTabChange={onChange} classNames={{tabsListWrapper: classes.TabsListWrapper}}>
+                        <Tabs.Tab label='Overview'>
+                            <Outlet></Outlet>
+                        </Tabs.Tab>
+                        <Tabs.Tab label='Facebook'>
+                            <Outlet></Outlet>
+                        </Tabs.Tab>
+                        <Tabs.Tab label='Instagram'>
+                            <Outlet></Outlet>
+                        </Tabs.Tab>
+                        <Tabs.Tab label='Twitter'>
+                            <Outlet></Outlet>
+                        </Tabs.Tab>
+                    </Tabs>
+                    :
+                    <Outlet></Outlet>
+                }
+
             </AppShell>
         </>
 

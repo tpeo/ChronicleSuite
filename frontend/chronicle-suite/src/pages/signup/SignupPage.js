@@ -48,7 +48,7 @@ export default function SignupPage(props) {
 
     return (
         <>
-        <Center fluid className={classes.TopCenter}>
+        <Center className={classes.TopCenter}>
             <Group className={classes.SocialGroup} direction="column">
                 <h1>Add your social accounts to get started</h1>
                 <Center className={classes.SocialCenter}>

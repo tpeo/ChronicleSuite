@@ -28,11 +28,19 @@ function App(props) {
   return (
         <Routes>
           <Route path="/">
-            <Route path="signup" element={<DefaultLayout></DefaultLayout>}>
-              <Route index element={<SignupPage/>}></Route>
-            </Route>
             <Route path="login" element={<FullscreenLayout></FullscreenLayout>}>
               <Route index element={<LoginPage/>}></Route>
+            </Route>
+            <Route path="signup" element={<DefaultLayout></DefaultLayout>}>
+              <Route index element={<SignupPage/>}></Route>
+              <Route path="facebook" element={<LoginPage/>}></Route>
+            </Route>
+            <Route path="dashboard" element={<DefaultLayout tabs></DefaultLayout>}>
+              <Route index element={<div>overview</div>}></Route>
+              <Route path="overview" element={<div>overview</div>}></Route>
+              <Route path="facebook" element={<div>facebook</div>}></Route>
+              <Route path="instagram" element={<div>instagram</div>}></Route>
+              <Route path="twitter" element={<div>twitter</div>}></Route>
             </Route>
           </Route>
         </Routes>

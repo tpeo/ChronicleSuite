@@ -3211,6 +3211,11 @@
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.3.0"
 
+"babel-plugin-react-html-attrs@^3.0.5":
+  "integrity" "sha512-o6RClilXl0T7HfVsHUE+xHV0HMBX0SzB94MMIrT52089CA6Sd4eXkY7jLHknQktFQ5UHpSXYPP0x7fUnIY97Qg=="
+  "resolved" "https://registry.npmjs.org/babel-plugin-react-html-attrs/-/babel-plugin-react-html-attrs-3.0.5.tgz"
+  "version" "3.0.5"
+
 "babel-plugin-styled-components@>= 1.12.0":
   "integrity" "sha512-Sk+7o/oa2HfHv3Eh8sxoz75/fFvEdHsXV4grdeHufX0nauCmymlnN0rGhIvfpMQSJMvGutJ85gvCGea4iqmDpg=="
   "resolved" "https://registry.npmjs.org/babel-plugin-styled-components/-/babel-plugin-styled-components-2.0.6.tgz"
