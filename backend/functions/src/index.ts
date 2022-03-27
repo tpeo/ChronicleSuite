@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable camelcase */
 import * as functions from "firebase-functions";
+const fetch = require("node-fetch").default;
+const cors = require("cors")({ origin: true });
 
 // The Firebase Admin SDK to access Firestore.
 import admin = require("firebase-admin");
@@ -15,14 +18,19 @@ admin.initializeApp();
 
 // TODO: Store long term access token in Firebase DB
 
-exports.getUserID = functions.https.onRequest(async (req, res) => {
+const getUserID = functions.https.onRequest(async (req, res) => {
+	cors(req, res, () => {
+		// res.status(500).send({ test: "Testing functions" });
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
 	const accessToken: string | undefined = req?.query?.token?.toString();
+	functions.logger.log(accessToken);
 	if (!accessToken) {
 		res.json({ result: "Access Token undefined" });
 		return;
 	}
 	const params = new URLSearchParams({ access_token: accessToken });
-	const url = new URL("https://graph.facebook.com/me" + params.toString());
+	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
 	const response: facebook.User = await (await fetch(url.toString())).json();
@@ -33,7 +41,7 @@ exports.getUserID = functions.https.onRequest(async (req, res) => {
 // from ChronicleSuite frontend and stores it in
 // Firebase DB
 // https://developers.facebook.com/docs/pages/access-tokens/
-exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
+const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	// Check if Meta Auth Token (long term access token)
 	// is stored in Firebase DB
 
@@ -52,10 +60,9 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 		client_secret: "cffd590264e00c3a6461eb18db460852",
 		fb_exchange_token: metaAuthShortTermAccessToken,
 	});
-	const url = new URL("https://graph.facebook.com/oauth/access_token" + params.toString());
+	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
 
-	// TODO: fix typescript import
-	const response: facebook.AuthResponse = await (await fetch(url.toString())).json();
+	const response: facebook.AuthResponse = (await (await fetch(url.toString())).json()) as facebook.AuthResponse;
 	const longTermAccessToken = response.accessToken;
 
 	// getUserInfo for user id
@@ -67,12 +74,12 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Access Token ${longTermAccessToken} added.` });
 });
 
-exports.getUserInfo = functions.https.onRequest(async (req, res) => {
+const getUserInfo = functions.https.onRequest(async (req, res) => {
 	// TODO: get userID from cache/frontend?
 	const userID = "";
 	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 	const params = new URLSearchParams({ access_token: userAccessToken });
-	const url = new URL("https://graph.facebook.com/me" + params.toString());
+	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
 	const response: facebook.User = await (await fetch(url.toString())).json();
@@ -86,30 +93,26 @@ interface Page {
 	access_token: string;
 }
 
-exports.getPageInsights = functions.https.onRequest(async (req, res) => {
+const getPageInsights = functions.https.onRequest(async (req, res) => {
 	const pageName = req.query.page_name;
 	// TODO: get userID from cache/frontend?
 	const userID = "";
 	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 
 	const params = new URLSearchParams({ access_token: userAccessToken });
-	const url = new URL("https://graph.facebook.com/v13.0/{user-id}/accounts" + params.toString());
+	const url = new URL("https://graph.facebook.com/v13.0/{user-id}/accounts?" + params.toString());
 
-	const response = await (await fetch(url.toString())).json();
+	const response = (await (await fetch(url.toString())).json()) as any;
 
 	const pages = response.data;
 
 	const { id: pageId, access_token: pageAccessToken } = pages.find((page: Page) => page.name == pageName);
 
-	const writeResult = await admin
-		.firestore()
-		.collection("users")
-		.doc(userID)
-		.set({ pageId: pageId, pageAccessToken: pageAccessToken });
+	const writeResult = await admin.firestore().collection("users").doc(userID).set({ pageId: pageId, pageAccessToken: pageAccessToken });
 	res.json({ result: `Page Insights with ID: ${writeResult} added.` });
 });
 
-exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
+const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	// TODO: get userID from cache/frontend?
 	const userID = "";
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
@@ -124,9 +127,9 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 
 	let params = new URLSearchParams({ access_token: accessToken });
 	// ? Might have to change v13.0 to v12.0
-	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts` + params.toString());
+	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts?` + params.toString());
 
-	let response = await (await fetch(url.toString())).json();
+	let response = (await (await fetch(url.toString())).json()) as any;
 
 	const pagePosts = response.data;
 
@@ -137,9 +140,7 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 			{
 				// Get post url and icon
 				method: "GET",
-				relative_url: new URLSearchParams(
-					{ fields: "permalink_url,full_picture", access_token: accessToken }.toString()
-				),
+				relative_url: new URLSearchParams({ fields: "permalink_url,full_picture", access_token: accessToken }.toString()),
 			},
 			{
 				// Get post likes count
@@ -154,15 +155,17 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 			// Get post comments count
 			{
 				method: "GET",
-				relative_url: "/comments" + new URLSearchParams({ summary: "1", access_token: accessToken }).toString(),
+				relative_url: "/comments?" + new URLSearchParams({ summary: "1", access_token: accessToken }).toString(),
 			},
 		];
 
 		params = new URLSearchParams({ batch: batch.toString() });
-		url = new URL(`"https://graph.facebook.com/v13.0/${postId}` + params.toString());
+		url = new URL(`"https://graph.facebook.com/v13.0/${postId}?` + params.toString());
 
 		response = await (await fetch(url.toString())).json();
 
 		// TODO: write response insights to db and return in res.json
 	}
 });
+
+export default { getUserID, storeMetaAuthToken, getUserInfo, getPageInsights, getPagePostInsights };

@@ -62,7 +62,7 @@ async function getFacebookLoginStatus() {
 // Login with facebook then authenticate with
 // the API to get a JWT auth token
 async function login() {
-	const { authResponse } = await new Promise(window.FB.login(() => {}, { scope: constants.LOGIN_PERMISSION_SCOPE }));
+	const { authResponse } = await new Promise(() => window.FB.login(() => {}, { scope: constants.LOGIN_PERMISSION_SCOPE }));
 	if (!authResponse) return console.log("no Auth Response");
 }
 
