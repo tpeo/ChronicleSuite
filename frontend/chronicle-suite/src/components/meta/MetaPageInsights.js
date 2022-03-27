@@ -16,7 +16,10 @@ function MetaPageInsights() {
 			let accessToken = window.FB.getAccessToken();
 			const params = new URLSearchParams({ token: accessToken });
 			const url = "http://localhost:5000/chroniclesuite/us-central1/default-getUserID?" + params.toString();
-			const response = await fetch(url);
+			const response = await (await fetch(url)).json();
+			const userID = response.id;
+            
+
 			return response;
 			// console.log(response);
 		}

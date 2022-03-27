@@ -6,6 +6,7 @@ const cors = require("cors")({ origin: true });
 
 // The Firebase Admin SDK to access Firestore.
 import admin = require("firebase-admin");
+import { firestore } from "firebase-admin";
 // import { getFirestore } from "firebase-admin/firestore";
 
 // import "@types/facebook-js-sdk";
@@ -19,10 +20,8 @@ admin.initializeApp();
 // TODO: Store long term access token in Firebase DB
 
 const getUserID = functions.https.onRequest(async (req, res) => {
-	cors(req, res, () => {
-		// res.status(500).send({ test: "Testing functions" });
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
+	res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+
 	const accessToken: string | undefined = req?.query?.token?.toString();
 	functions.logger.log(accessToken);
 	if (!accessToken) {
