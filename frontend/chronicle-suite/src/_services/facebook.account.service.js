@@ -1,3 +1,4 @@
+import { auth } from "firebase-admin";
 import env from "../env";
 import * as constants from "./../constants";
 import { utils } from "./../_helpers/utils";
@@ -62,14 +63,8 @@ async function getFacebookLoginStatus() {
 // Login with facebook then authenticate with
 // the API to get a JWT auth token
 async function login(setMetaAuthStatus) {
-	const { authResponse } = await new Promise(() =>
-		window.FB.login(
-			() => {
-				setMetaAuthStatus(true);
-			},
-			{ scope: constants.LOGIN_PERMISSION_SCOPE }
-		)
-	);
+	const { authResponse } = await new Promise(() => window.FB.login(() => {}, { scope: constants.LOGIN_PERMISSION_SCOPE }));
+	// setMetaAuthStatus(!!authResponse);
 }
 
 // Get page insights of the given

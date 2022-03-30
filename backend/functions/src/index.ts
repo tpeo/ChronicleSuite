@@ -32,7 +32,10 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 
 	// ? User has type any
 	const response = await (await fetch(url.toString())).json();
-	res.json({ id: response.id });
+	const userID = response.id;
+	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userID });
+
+	res.json({ id: response.id, result: `User ID ${userID} written` });
 });
 
 // Gets long term access token for Meta Authentiation
@@ -71,7 +74,7 @@ const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	const longTermAccessToken = response.access_token;
 
 	// Store long term access token in Firebase DB
-	await admin.firestore().collection("users").doc(userID).set({ metaAuthToken: longTermAccessToken });
+	await admin.firestore().collection("users").doc(userID).update({ metaAuthToken: longTermAccessToken });
 
 	res.json({ result: `Access Token ${longTermAccessToken} added.` });
 });
@@ -87,7 +90,7 @@ const getUserInfo = functions.https.onRequest(async (req, res) => {
 
 	// ? User has type any
 	const response: facebook.User = await (await fetch(url.toString())).json();
-	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userInfo: response });
+	const writeResult = await admin.firestore().collection("users").doc(userID).update({ userInfo: response });
 	res.json({ result: `User Info with ID: ${writeResult} added.` });
 });
 
@@ -105,7 +108,14 @@ const storePageAccessToken = functions.https.onRequest(async (req, res) => {
 	const userID = req.query.userID as string;
 	functions.logger.log(pageName);
 	functions.logger.log(userID);
-	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
+	// const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
+	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
+	if (!user) {
+		res.json({ result: `User with ID ${userID} doesn't exist` });
+		return;
+	}
+
+	const userAccessToken = user.metaAuthToken;
 
 	const params = new URLSearchParams({ access_token: userAccessToken });
 	const url = new URL(`https://graph.facebook.com/v13.0/${userID}/accounts?` + params.toString());
@@ -116,7 +126,7 @@ const storePageAccessToken = functions.https.onRequest(async (req, res) => {
 
 	const { id: pageId, access_token: pageAccessToken } = pages.find((page: Page) => page.name == pageName);
 
-	const writeResult = await admin.firestore().collection("users").doc(userID).set({ pageId: pageId, pageAccessToken: pageAccessToken });
+	const writeResult = await admin.firestore().collection("users").doc(userID).update({ pageId: pageId, pageAccessToken: pageAccessToken });
 	res.json({ result: `Page Insights with ID: ${writeResult} added.` });
 });
 
@@ -124,8 +134,8 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	cors(req, res, () => {
 		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
 	});
-	// TODO: get userID from cache/frontend?
-	const userID = "";
+	const userID = req.query.userID as string;
+
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
 	if (!user) {
 		res.json({ result: `User with ID ${userID} doesn't exist` });
@@ -133,14 +143,15 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	}
 
 	const pageId = user.pageId;
-	// const pageAccessToken = user.pageAccessToken;
+	const pageAccessToken = user.pageAccessToken;
 	const accessToken = user.metaAuthToken;
 
-	let params = new URLSearchParams({ access_token: accessToken });
+	let params = new URLSearchParams({ access_token: pageAccessToken });
 	// ? Might have to change v13.0 to v12.0
 	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts?` + params.toString());
 
 	let response = (await (await fetch(url.toString())).json()) as any;
+	functions.logger.log(response);
 
 	const pagePosts = response.data;
 
