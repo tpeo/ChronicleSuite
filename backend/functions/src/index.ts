@@ -17,8 +17,6 @@ admin.initializeApp();
 // TODO: Test generation of long term access token
 // Get ltat, call /me endpoint to get user name, send to ChronicleSutie
 
-// TODO: Store long term access token in Firebase DB
-
 const getUserID = functions.https.onRequest(async (req, res) => {
 	cors(req, res, () => {
 		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
