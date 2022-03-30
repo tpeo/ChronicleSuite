@@ -14,11 +14,26 @@ function MetaPageInsights() {
 		}
 		async function fetchUserID() {
 			let accessToken = window.FB.getAccessToken();
-			const params = new URLSearchParams({ token: accessToken });
-			const url = "http://localhost:5000/chroniclesuite/us-central1/default-getUserID?" + params.toString();
-			const response = await (await fetch(url)).json();
+			// get user id endpoint
+			let params = new URLSearchParams({ token: accessToken });
+			let url = "http://localhost:5000/chroniclesuite/us-central1/default-getUserID?" + params.toString();
+			let response = await (await fetch(url)).json();
 			const userID = response.id;
-            
+
+			console.log(response);
+
+			// store auth token endpoint
+			params = new URLSearchParams({ token: accessToken, userID });
+			url = new URL("http://localhost:5000/chroniclesuite/us-central1/default-storeMetaAuthToken?" + params.toString());
+			response = await (await fetch(url)).json();
+
+			// get page access token
+			params = new URLSearchParams({ page_name: "Chronicle Suite", userID });
+			url = new URL("http://localhost:5000/chroniclesuite/us-central1/default-getPageAccessToken?" + params.toString());
+			console.log(url.toString());
+			response = await (await fetch(url)).json();
+
+			// console.log(response);
 
 			return response;
 			// console.log(response);

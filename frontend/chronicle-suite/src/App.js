@@ -30,7 +30,7 @@ function App() {
 		// console.log(response.id);
 		return <MetaPageInsights />;
 	} else {
-		return <MetaLogin />;
+		return <MetaLogin setMetaAuthStatus={setMetaAuthStatus} />;
 	}
 }
 

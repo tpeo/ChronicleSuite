@@ -34,7 +34,7 @@ export const PAGES_READ_ENGAGEMENT_PERMISSION = "pages_read_engagement";
 
 // export const LOGIN_PERMISSION_SCOPE =
 // 	"read_insights,pages_manage_posts,pages_show_list,pages_read_engagement,pages_read_user_content,pages_manage_engagement";
-export const LOGIN_PERMISSION_SCOPE = "";
+export const LOGIN_PERMISSION_SCOPE = "pages_show_list";
 
 // Post Metadata
 export const FACEBOOK_PLATFORM = "Facebook";

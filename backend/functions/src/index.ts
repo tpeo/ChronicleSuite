@@ -6,7 +6,7 @@ const cors = require("cors")({ origin: true });
 
 // The Firebase Admin SDK to access Firestore.
 import admin = require("firebase-admin");
-import { firestore } from "firebase-admin";
+// import { firestore } from "firebase-admin";
 // import { getFirestore } from "firebase-admin/firestore";
 
 // import "@types/facebook-js-sdk";
@@ -20,10 +20,11 @@ admin.initializeApp();
 // TODO: Store long term access token in Firebase DB
 
 const getUserID = functions.https.onRequest(async (req, res) => {
-	res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	cors(req, res, () => {
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
 
 	const accessToken: string | undefined = req?.query?.token?.toString();
-	functions.logger.log(accessToken);
 	if (!accessToken) {
 		res.json({ result: "Access Token undefined" });
 		return;
@@ -32,7 +33,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
-	const response: facebook.User = await (await fetch(url.toString())).json();
+	const response = await (await fetch(url.toString())).json();
 	res.json({ id: response.id });
 });
 
@@ -41,8 +42,13 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 // Firebase DB
 // https://developers.facebook.com/docs/pages/access-tokens/
 const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
+	cors(req, res, () => {
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
 	// Check if Meta Auth Token (long term access token)
 	// is stored in Firebase DB
+	// getUserInfo for user id
+	const userID = req.query.userID as string;
 
 	// Get short term acces token from req
 	const metaAuthShortTermAccessToken: string | undefined = req?.query?.token?.toString();
@@ -55,27 +61,28 @@ const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	// Get long term access token
 	const params = new URLSearchParams({
 		grant_type: "fb_exchange_token",
-		client_id: "1017960119077876",
-		client_secret: "cffd590264e00c3a6461eb18db460852",
+		client_id: process.env.META_CLIENT_ID as string,
+		client_secret: process.env.META_CLIENT_SECRET as string,
 		fb_exchange_token: metaAuthShortTermAccessToken,
 	});
 	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
 
-	const response: facebook.AuthResponse = (await (await fetch(url.toString())).json()) as facebook.AuthResponse;
-	const longTermAccessToken = response.accessToken;
+	const response = await (await fetch(url.toString())).json();
+	if (response.error) res.json({ error: true });
 
-	// getUserInfo for user id
-	const userID = "";
+	const longTermAccessToken = response.access_token;
 
 	// Store long term access token in Firebase DB
-	await admin.firestore().collection("users").doc(userID).create({ metaAuthToken: longTermAccessToken });
+	await admin.firestore().collection("users").doc(userID).set({ metaAuthToken: longTermAccessToken });
 
 	res.json({ result: `Access Token ${longTermAccessToken} added.` });
 });
 
 const getUserInfo = functions.https.onRequest(async (req, res) => {
-	// TODO: get userID from cache/frontend?
-	const userID = "";
+	cors(req, res, () => {
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
+	const userID = req.query.userID as string;
 	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 	const params = new URLSearchParams({ access_token: userAccessToken });
 	const url = new URL("https://graph.facebook.com/me?" + params.toString());
@@ -92,14 +99,18 @@ interface Page {
 	access_token: string;
 }
 
-const getPageInsights = functions.https.onRequest(async (req, res) => {
-	const pageName = req.query.page_name;
-	// TODO: get userID from cache/frontend?
-	const userID = "";
+const storePageAccessToken = functions.https.onRequest(async (req, res) => {
+	cors(req, res, () => {
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
+	const pageName = req.query.page_name as string;
+	const userID = req.query.userID as string;
+	functions.logger.log(pageName);
+	functions.logger.log(userID);
 	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 
 	const params = new URLSearchParams({ access_token: userAccessToken });
-	const url = new URL("https://graph.facebook.com/v13.0/{user-id}/accounts?" + params.toString());
+	const url = new URL(`https://graph.facebook.com/v13.0/${userID}/accounts?` + params.toString());
 
 	const response = (await (await fetch(url.toString())).json()) as any;
 
@@ -112,6 +123,9 @@ const getPageInsights = functions.https.onRequest(async (req, res) => {
 });
 
 const getPagePostInsights = functions.https.onRequest(async (req, res) => {
+	cors(req, res, () => {
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
 	// TODO: get userID from cache/frontend?
 	const userID = "";
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
@@ -167,4 +181,4 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	}
 });
 
-export default { getUserID, storeMetaAuthToken, getUserInfo, getPageInsights, getPagePostInsights };
+export default { getUserID, storeMetaAuthToken, getUserInfo, getPageAccessToken: storePageAccessToken, getPagePostInsights };
