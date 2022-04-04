@@ -8,10 +8,6 @@ import { errorInterceptor } from './_helpers/errorInterceptor';
 import { facebookAccountService } from './_services/facebook.account.service'
 import { MantineProvider, Global } from '@mantine/core';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import FullscreenLayout from './components/layouts/FullscreenLayout';
-import DefaultLayout from './components/layouts/DefaultLayout';
-import LoginPage from './pages/login/LoginPage.js'
-import SignupPage from './pages/signup/SignupPage.js'
 
 // Require and configure dotenv
 // require('dotenv').config()
