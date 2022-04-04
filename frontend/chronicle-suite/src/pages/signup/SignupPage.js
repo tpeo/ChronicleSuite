@@ -1,6 +1,6 @@
 import { createStyles, Container, Center, Group, Button, Space } from '@mantine/core';
 import { useState, useEffect } from 'react';
-import { LogoFacebook, LogoTwitter, LogoInstagram } from 'react-ionicons'
+import { FaFacebookSquare, FaInstagramSquare, FaTwitterSquare } from "react-icons/fa";
 
 const useStyles = createStyles((theme, _params, getRef) => {
     return {
@@ -52,15 +52,15 @@ export default function SignupPage(props) {
             <Group className={classes.SocialGroup} direction="column">
                 <h1>Add your social accounts to get started</h1>
                 <Center className={classes.SocialCenter}>
-                    <Button leftIcon={<LogoFacebook />} variant="white" size="xl" classNames={{root: classes.ButtonRoot, inner: classes.ButtonInner}}>
+                    <Button leftIcon={<FaFacebookSquare />} variant="white" size="xl" classNames={{root: classes.ButtonRoot, inner: classes.ButtonInner}}>
                         Connect to Facebook
                     </Button>
                     <Space h="md" />
-                    <Button leftIcon={<LogoInstagram />} variant="white" size="xl" classNames={{root: classes.ButtonRoot, inner: classes.ButtonInner}}>
+                    <Button leftIcon={<FaInstagramSquare />} variant="white" size="xl" classNames={{root: classes.ButtonRoot, inner: classes.ButtonInner}}>
                         Connect to Instagram
                     </Button>
                     <Space h="md" />
-                    <Button leftIcon={<LogoTwitter />} variant="white" size="xl" classNames={{root: classes.ButtonRoot, inner: classes.ButtonInner}}> 
+                    <Button leftIcon={<FaTwitterSquare />} variant="white" size="xl" classNames={{root: classes.ButtonRoot, inner: classes.ButtonInner}}> 
                         Connect to Twitter
                     </Button>
                 </Center>
