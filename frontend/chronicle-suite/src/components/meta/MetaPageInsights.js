@@ -30,13 +30,13 @@ function MetaPageInsights() {
 			// get page access token
 			params = new URLSearchParams({ page_name: "Chronicle Suite", userID });
 			url = new URL("http://localhost:5000/chroniclesuite/us-central1/default-getPageAccessToken?" + params.toString());
-			console.log(url.toString());
+			// console.log(url.toString());
 			response = await (await fetch(url)).json();
 
 			// console.log(response);
 			params = new URLSearchParams({ userID });
 			url = new URL("http://localhost:5000/chroniclesuite/us-central1/default-getPagePostInsights?" + params.toString());
-			console.log(url.toString());
+			// console.log(url.toString());
 			response = await (await fetch(url)).json();
 
 			return response;
