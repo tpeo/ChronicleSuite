@@ -146,47 +146,77 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	const pageAccessToken = user.pageAccessToken;
 	const accessToken = user.metaAuthToken;
 
-	let params = new URLSearchParams({ access_token: pageAccessToken });
-	// ? Might have to change v13.0 to v12.0
+	const params = new URLSearchParams({ access_token: pageAccessToken });
 	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts?` + params.toString());
 
 	let response = (await (await fetch(url.toString())).json()) as any;
-	functions.logger.log(response);
 
 	const pagePosts = response.data;
+	functions.logger.log(pagePosts);
 
 	for (let i = 0; i < pagePosts.length; i++) {
-		const postId = pagePosts[i].id;
+		const postID = pagePosts[i].id;
+		functions.logger.log(postID);
 
 		const batch = [
 			{
 				// Get post url and icon
 				method: "GET",
-				relative_url: new URLSearchParams({ fields: "permalink_url,full_picture", access_token: accessToken }.toString()),
+				relative_url: `${postID}/?` + new URLSearchParams({ fields: "permalink_url,full_picture", access_token: pageAccessToken }).toString(),
 			},
 			{
 				// Get post likes count
 				method: "GET",
 				relative_url:
-					"/insights" +
+					`${postID}/insights?` +
 					new URLSearchParams({
 						metric: "post_reactions_by_type_total",
-						access_token: accessToken,
+						access_token: pageAccessToken,
 					}).toString(),
 			},
 			// Get post comments count
 			{
 				method: "GET",
-				relative_url: "/comments?" + new URLSearchParams({ summary: "1", access_token: accessToken }).toString(),
+				relative_url: `${postID}/comments?` + new URLSearchParams({ summary: "1", access_token: pageAccessToken }).toString(),
 			},
 		];
 
-		params = new URLSearchParams({ batch: batch.toString() });
-		url = new URL(`"https://graph.facebook.com/v13.0/${postId}?` + params.toString());
+		const p = new URLSearchParams({ access_token: accessToken, include_headers: "false", batch: JSON.stringify(batch) });
+		url = new URL(`https://graph.facebook.com/v13.0/${postID}?` + p.toString());
 
-		response = await (await fetch(url.toString())).json();
+		response = await (
+			await fetch(url.toString(), {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			})
+		).json();
+
+		functions.logger.log(typeof response);
+
+		// functions.logger.log({ test: "testing", test2: "test3" });
+		// response.forEach((res: any) => {
+		// 	functions.logger.log(res);
+		// });
+
+		const [postMetaData, reactions, comments] = response;
+		// functions.logger.log(postMetaData);
+		// functions.logger.log(reactions);
+		// functions.logger.log(comments);
+		const { permalink_url } = postMetaData.body;
+		JSON.parse(reactions.body).data.forEach((element: any) => {
+			const { name, values } = element;
+			values.forEach((value: any) => {
+				functions.logger.log(value);
+			});
+		});
+		JSON.parse(comments.body).data.forEach((comment: any) => {
+			functions.logger.log(comment.message);
+		});
 
 		// TODO: write response insights to db and return in res.json
+		res.json({ status: 200 });
 	}
 });
 
