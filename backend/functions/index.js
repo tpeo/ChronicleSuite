@@ -1,9 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable camelcase */
-// const functions = require("firebase-functions");
-// const fetch = require("node-fetch").default;
-// const cors = require("cors")({ origin: true });
-// const admin = require("firebase-admin");
 import functions from "firebase-functions";
 import fetch from "node-fetch";
 import cors from "cors";
