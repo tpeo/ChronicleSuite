@@ -15,7 +15,10 @@ function MetaPageInsights() {
 		async function fetchUserID() {
 			let accessToken = window.FB.getAccessToken();
 			// get user id endpoint
-			let params = new URLSearchParams({ token: accessToken });
+			// let params = new URLSearchParams({ token: accessToken });
+			let params = new URLSearchParams({
+				token: "EAAKGsePZASycBABQmZBFXvacDNZAksU2oDrMPb5iK6WHXUXnJc0sElnf06MG6ZBOsxZCz3oVdxrJbA5rqT7lrHD8J3qBW8PHxNP9ZC14KBArb6RkkhNRTJbb71hp8ek8K27se1bn0xZBz8M5pDY37PawiTZBwioqY0dg4ZBiCknwZCnx0ABP6mibZC94Y3bBdgIWkIDo3v9YmOCmQZDZD",
+			});
 			let url = constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-getUserID?" + params.toString();
 			let response = await (await fetch(url)).json();
 			const userID = response.id;
