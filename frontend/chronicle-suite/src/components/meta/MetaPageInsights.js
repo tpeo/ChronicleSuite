@@ -15,26 +15,23 @@ function MetaPageInsights() {
 		async function fetchUserID() {
 			let accessToken = window.FB.getAccessToken();
 			// get user id endpoint
-			// let params = new URLSearchParams({ token: accessToken });
-			let params = new URLSearchParams({
-				token: "EAAKGsePZASycBABQmZBFXvacDNZAksU2oDrMPb5iK6WHXUXnJc0sElnf06MG6ZBOsxZCz3oVdxrJbA5rqT7lrHD8J3qBW8PHxNP9ZC14KBArb6RkkhNRTJbb71hp8ek8K27se1bn0xZBz8M5pDY37PawiTZBwioqY0dg4ZBiCknwZCnx0ABP6mibZC94Y3bBdgIWkIDo3v9YmOCmQZDZD",
-			});
-			let url = constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-getUserID?" + params.toString();
+			let params = new URLSearchParams({ token: accessToken });
+			let url = constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-meta-getUserID?" + params.toString();
 			let response = await (await fetch(url)).json();
 			const userID = response.id;
 
 			// store auth token endpoint
 			params = new URLSearchParams({ token: accessToken, userID });
-			url = new URL(constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-storeMetaAuthToken?" + params.toString());
+			url = new URL(constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-meta-storeMetaAuthToken?" + params.toString());
 			response = await (await fetch(url)).json();
 
 			// get page access token
 			params = new URLSearchParams({ page_name: "Chronicle Suite", userID });
-			url = new URL(constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-getPageAccessToken?" + params.toString());
+			url = new URL(constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-meta-getPageAccessToken?" + params.toString());
 			response = await (await fetch(url)).json();
 
 			params = new URLSearchParams({ userID });
-			url = new URL(constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-getPagePostInsights?" + params.toString());
+			url = new URL(constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-meta-getPagePostInsights?" + params.toString());
 			response = await (await fetch(url)).json();
 
 			return response;

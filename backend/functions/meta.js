@@ -1,8 +1,8 @@
-import functions from "firebase-functions";
-import fetch from "node-fetch";
 import cors from "cors";
 import admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import functions from "firebase-functions";
+import fetch from "node-fetch";
 
 admin.initializeApp();
 
@@ -23,6 +23,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 
 	// ? User has type any
 	const response = await (await fetch(url.toString())).json();
+	functions.logger.log(response);
 	const userID = response.id;
 	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userID });
 
