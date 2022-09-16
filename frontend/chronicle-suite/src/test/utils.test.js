@@ -4,6 +4,7 @@ import {expect} from "chai";
 
 const assert = require(constants.CHAI_IMPORT).assert;
 
+// Testing functions in utils.js
 describe('utils', function () {
     it('testing getDateAndTimeFromISOTimestamp_0', function () {
         let r = utils.getDateAndTimeFromISOTimestamp(constants.ISO_TIMESTAMP_0);
