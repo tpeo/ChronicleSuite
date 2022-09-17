@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // {
+        //     "type": "npm",
+        //     "script": "build",
+        //     "path": "backend/functions/",
+        //     "group": {
+        //         "kind": "build",
+        //         "isDefault": true
+        //     },
+        //     "problemMatcher": [],
+        //     "label": "npm: build - backend/functions",
+        //     "detail": "tsc"
+        // }
+        {
+            "type": "npm",
+            "script": "build",
+            
+        }
+    ]
+}
