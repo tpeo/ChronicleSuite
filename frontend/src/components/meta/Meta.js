@@ -3,7 +3,7 @@ import MetaLogin from "./MetaLogin";
 import MetaPageInsights from "./MetaPageInsights";
 import { useEffect, useState } from "react";
 
-import * as constants from "../../constants";
+import * as constants from "../../_helpers/constants";
 
 function Meta() {
 	const [metaAuthStatus, setMetaAuthStatus] = useState(constants.UNAUTHENTICATED);

@@ -1,5 +1,5 @@
 import GoogleLogin from "react-google-login";
-import * as constants from "../../constants.js";
+import * as constants from "../../_helpers/constants.js";
 
 const loginSuccess = async (googleData) => {
 	const response = await fetch(`${constants.FIREBASE_EMULATOR_URL}/chroniclesuite/us-central1/default-google-verifyAuth`, {

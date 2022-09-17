@@ -1,15 +1,9 @@
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import { facebookAccountService } from "./_services/facebook.account.service";
-import MetaLogin from "./components/meta/MetaLogin";
-import MetaPageInsights from "./components/meta/MetaPageInsights";
-import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import DefaultLayout from "./components/layouts/DefaultLayout";
+import FullscreenLayout from "./components/layouts/FullscreenLayout";
 import LoginPage from "./pages/login/LoginPage.js";
 import SignupPage from "./pages/signup/SignupPage.js";
-import * as constants from "./constants";
-import FullscreenLayout from "./components/layouts/FullscreenLayout";
-import DefaultLayout from "./components/layouts/DefaultLayout";
-import { MantineProvider, Global } from "@mantine/core";
 
 function App(props) {
 	// const [metaAuthStatus, setMetaAuthStatus] = useState(constants.UNAUTHENTICATED);

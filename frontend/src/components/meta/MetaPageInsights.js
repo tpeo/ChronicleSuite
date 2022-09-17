@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./../../App.css";
+import * as constants from "./../../_helpers/constants";
 import { facebookAccountService } from "./../../_services/facebook.account.service";
-import * as constants from "./../../constants";
 
 function MetaPageInsights() {
 	// Collection of published post insights
