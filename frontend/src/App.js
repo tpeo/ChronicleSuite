@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
+import Dashboard from "./components/common/Dashboard";
 import DefaultLayout from "./components/layouts/DefaultLayout";
 import FullscreenLayout from "./components/layouts/FullscreenLayout";
 import LoginPage from "./pages/login/LoginPage.js";
@@ -31,7 +32,7 @@ function App(props) {
 				</Route>
 				<Route path="dashboard" element={<DefaultLayout tabs></DefaultLayout>}>
 					<Route index element={<div>overview</div>}></Route>
-					<Route path="overview" element={<div>overview</div>}></Route>
+					<Route path="overview" element={<Dashboard />}></Route>
 					<Route path="facebook" element={<div>facebook</div>}></Route>
 					<Route path="instagram" element={<div>instagram</div>}></Route>
 					<Route path="twitter" element={<div>twitter</div>}></Route>
