@@ -65,6 +65,19 @@
             "label": "firebase stop",
             "type": "shell",
             "command": "npx kill-port 8080",
+        },
+        {
+            "label": "Terminate All Tasks",
+            "command": "echo ${input:terminate}",
+            "type": "shell",
+        }
+    ],
+    "inputs": [
+        {
+            "id": "terminate",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "terminateAll"
         }
     ]
 }

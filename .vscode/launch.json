@@ -8,9 +8,10 @@
             "type": "msedge",
             "request": "launch",
             "name": "Launch Edge against localhost",
-            "url": "http://localhost:3000/login",
+            "url": "https://localhost:3000/dashboard/overview",
             "webRoot": "${workspaceFolder}/frontend",
-            "preLaunchTask": "run frontend"
+            "preLaunchTask": "run frontend",
+            "postDebugTask": "Terminate All Tasks"
         }
     ]
 }

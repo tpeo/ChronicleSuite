@@ -32,7 +32,7 @@
 		"web-vitals": "^2.1.2"
 	},
 	"scripts": {
-		"start": "react-scripts start",
+		"start": "set HTTPS=true&&react-scripts start",
 		"build": "react-scripts build",
 		"test": "NODE_ENV=test mocha --require @babel/register --require ignore-styles src/test/*.test.js",
 		"eject": "react-scripts eject"

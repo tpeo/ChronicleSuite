@@ -47,3 +47,34 @@ export const HYPHEN = "-";
 // getDateAndTimeFromISOTimestamp()
 export const ISO_TIMESTAMP_0 = "2019-07-16T15:21:56+0000";
 export const ISO_DATE_TIME_STR_0 = ["2019-7-16", "9:21 AM"];
+
+export const data = [
+	{
+		name: "10/07",
+		impressions: 4000,
+	},
+	{
+		name: "10/08",
+		impressions: 3000,
+	},
+	{
+		name: "10/09",
+		impressions: 2000,
+	},
+	{
+		name: "10/10",
+		impressions: 2780,
+	},
+	{
+		name: "10/11",
+		impressions: 1890,
+	},
+	{
+		name: "10/12",
+		impressions: 2390,
+	},
+	{
+		name: "10/13",
+		impressions: 3490,
+	},
+];
