@@ -1,6 +1,7 @@
-import { Button, Center, Grid } from "@mantine/core";
-import Chart from "../chart.js";
+import { Button, Grid, Select, Stack } from "@mantine/core";
+import { useState } from "react";
 import * as constants from "../../_helpers/constants.js";
+import Chart from "../chart.js";
 
 function exportToCSV(data) {
 	let csvContent = "data:text/csv;charset=utf-8,";
@@ -21,25 +22,35 @@ function exportToCSV(data) {
 }
 
 function Dashboard(props) {
+	const [dayRange, setDayRange] = useState(1);
+
 	return (
-		<Grid
-			grow
-			style={{ width: "60%", height: "100%", paddingTop: "30px", paddingBottom: "30px", borderRadius: "20px", boxShadow: "0px 0px 20px" }}
-			align="center"
-		>
-			<Grid.Col span={3} align="center">
-				Impressions
-			</Grid.Col>
-			<Grid.Col span={3} offset={6} align="center">
-				Select Date Range
-			</Grid.Col>
-			<Grid.Col span={12} style={{ height: "600px" }}>
-				<Chart />
-			</Grid.Col>
-			<Grid.Col span={12} align="center">
+		<Stack style={{ width: "60%", height: "100%", paddingTop: "30px", paddingBottom: "30px", borderRadius: "20px", boxShadow: "0px 0px 16px gray" }} grow>
+			<Grid align="center">
+				<Grid.Col span={1} />
+				<Grid.Col span={3}>Impressions</Grid.Col>
+				<Grid.Col span={4} />
+				<Grid.Col span={3} align="center">
+					<Select
+						label="Select Date Range"
+						onChange={setDayRange}
+						data={[
+							{ value: 1, label: "1 Day" },
+							{ value: 7, label: "7 Days" },
+							{ value: 14, label: "14 Days" },
+							{ value: 28, label: "28 Days" },
+						]}
+					/>
+				</Grid.Col>
+				<Grid.Col span={1} />
+			</Grid>
+			<div style={{ height: "300px" }}>
+				<Chart dayRange={dayRange} />
+			</div>
+			<div style={{ display: "flex", justifyContent: "center" }}>
 				<Button onClick={() => exportToCSV(constants.data)}>Create Spreadsheet</Button>
-			</Grid.Col>
-		</Grid>
+			</div>
+		</Stack>
 	);
 }
 
