@@ -22,10 +22,10 @@ function exportToCSV(data) {
 }
 
 function Dashboard(props) {
-	const [dayRange, setDayRange] = useState(1);
+	const [dayRange, setDayRange] = useState("7");
 
 	return (
-		<Stack style={{ width: "60%", height: "100%", paddingTop: "30px", paddingBottom: "30px", borderRadius: "20px", boxShadow: "0px 0px 16px gray" }} grow>
+		<Stack style={{ width: "60%", height: "100%", paddingTop: "30px", paddingBottom: "30px", borderRadius: "20px", boxShadow: "0px 0px 16px gray" }}>
 			<Grid align="center">
 				<Grid.Col span={1} />
 				<Grid.Col span={3}>Impressions</Grid.Col>
@@ -34,11 +34,12 @@ function Dashboard(props) {
 					<Select
 						label="Select Date Range"
 						onChange={setDayRange}
+						defaultValue={dayRange}
 						data={[
-							{ value: 1, label: "1 Day" },
-							{ value: 7, label: "7 Days" },
-							{ value: 14, label: "14 Days" },
-							{ value: 28, label: "28 Days" },
+							{ value: "1", label: "1 Day" },
+							{ value: "7", label: "7 Days" },
+							{ value: "14", label: "14 Days" },
+							{ value: "28", label: "28 Days" },
 						]}
 					/>
 				</Grid.Col>
