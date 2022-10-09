@@ -7,6 +7,7 @@ import { jwtInterceptor } from './_helpers/jwtInterceptor'
 import { errorInterceptor } from './_helpers/errorInterceptor';
 import { facebookAccountService } from './_services/facebook.account.service'
 import { MantineProvider, Global } from '@mantine/core';
+import { NotificationsProvider } from '@mantine/notifications';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Require and configure dotenv
@@ -22,6 +23,7 @@ function startApp() {
   ReactDOM.render(
     <React.StrictMode>
       <MantineProvider>
+        <NotificationsProvider>
           <Global
           styles={() => ({
             '*, *::before, *::after': {
@@ -29,9 +31,10 @@ function startApp() {
             },
           })}
           />
-        <BrowserRouter>
-          <App/>
-        </BrowserRouter>
+          <BrowserRouter>
+            <App/>
+          </BrowserRouter>
+        </NotificationsProvider>
       </MantineProvider>
     </React.StrictMode>,
     document.getElementById('root')
