@@ -1,5 +1,6 @@
 import { Button, Center, createStyles, Group, Space } from "@mantine/core";
 import { FaFacebookSquare, FaInstagramSquare, FaTwitterSquare } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { facebookAccountService } from "../../_services/facebook.account.service";
 import fetchUserID from "../../_services/GetMetaData";
 
@@ -46,6 +47,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 export default function SignupPage(props) {
 	const { classes } = useStyles();
+	const navigate = useNavigate();
 
 	return (
 		<>
@@ -79,10 +81,10 @@ export default function SignupPage(props) {
 				</Group>
 			</Center>
 			<Group className={classes.BottomGroup} position="right">
-				<Button variant="subtle" color="gray">
+				<Button variant="subtle" color="gray" onClick={() => navigate("/dashboard/overview")}>
 					Skip ➤
 				</Button>
-				<Button>Next</Button>
+				<Button onClick={() => navigate("/dashboard/overview")}>Next</Button>
 			</Group>
 		</>
 	);
