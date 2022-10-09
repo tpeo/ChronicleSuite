@@ -20,7 +20,7 @@ import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 import { reduce } from 'rxjs';
 import { Link , useNavigate} from 'react-router-dom';
-import { IconAt } from '@tabler/icons';
+import { IconLock, IconAt } from '@tabler/icons';
 
 const useStyles = createStyles((theme, _params, getRef) => {
   return {
@@ -83,8 +83,8 @@ function LoginPage(props) {
     // TODO: login functionality
     const handleSubmit = (values: typeof form.values) => {
       console.log(values);
-      setVisible((v) => !v);
-      // navigate('/dashboard'); // temporary until implement auth
+      // setVisible((v) => !v); // loading !!! thing
+      navigate('/dashboard/overview'); // temporary until implement auth
     };
 
     const onRegister = () => {
@@ -107,6 +107,7 @@ function LoginPage(props) {
               placeholder="example@gmail.com" 
               description="Enter your email to get a reset link"
               size="sm"
+              icon={<IconAt size={16} />}
               {...formForget.getInputProps('email')}
             />
 
@@ -135,6 +136,7 @@ function LoginPage(props) {
                 label="Email" 
                 placeholder="example@gmail.com" 
                 size="md"
+                icon={<IconAt size={16} />}
                 {...form.getInputProps('email')}
               />
               <PasswordInput 
@@ -142,6 +144,7 @@ function LoginPage(props) {
                 placeholder="Your password" 
                 mt="md" 
                 size="md"
+                icon={<IconLock size={16} />}
                 {...form.getInputProps('password')}
               />
 
