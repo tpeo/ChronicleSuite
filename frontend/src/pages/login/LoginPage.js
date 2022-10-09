@@ -9,12 +9,18 @@ import {
   Group,
   Button,
   Image,
+  Divider,
   createStyles,
+  LoadingOverlay,
+  Modal,
+  Loader,
 } from '@mantine/core';
+import { useState } from 'react';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 import { reduce } from 'rxjs';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
+import { IconAt } from '@tabler/icons';
 
 const useStyles = createStyles((theme, _params, getRef) => {
   return {
@@ -31,10 +37,30 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 function LoginPage(props) {
     const { classes } = useStyles()
+    const navigate = useNavigate();
+    const [visible, setVisible] = useState(false); // for loading screen between login and dashboard pages
+    const [opened, setOpened] = useState(false); // for forget password modal
+
+    const formForget = useForm({
+      initialValues: {
+        email: '',
+      },
+
+      validate: {
+        email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      },
+    });
+
+    // TODO: handle sending a link to given email
+    const handleSubmitForget = (values: typeof form.values) => {
+      console.log(values);
+    };
+
     const form = useForm({
       initialValues: {
         email: '',
         password: '',
+        rememberMe: false,
       },
   
       validate: {
@@ -48,15 +74,51 @@ function LoginPage(props) {
       }
     };
 
+    // TODO: login functionality
     const handleSubmit = (values: typeof form.values) => {
-      console.log(values)
+      console.log(values);
+      setVisible((v) => !v);
+      // navigate('/dashboard'); // temporary until implement auth
     };
 
-    const login = () => {
+    const onRegister = () => {
+      navigate('/signup');
     };
 
     return (
       <>
+        {/* forget password modal TODO: make it prettier spacing is weird, dunno how to get notifs on top of modal*/}
+        <Modal 
+          centered
+          size="md"
+          opened={opened}
+          onClose={() => setOpened(false)}
+          title="Someone is locked out..." 
+        >
+          <form onSubmit={formForget.onSubmit(handleSubmitForget)}>
+            <TextInput 
+              label="Your email" 
+              placeholder="example@gmail.com" 
+              description="Enter your email to get a reset link"
+              size="sm"
+              {...formForget.getInputProps('email')}
+            />
+
+            <Button type="submit" fullWidth mt="xl" size="md">Send Link</Button>
+
+            <Divider label="OR" labelPosition="center" my="lg" />
+
+            <Text align="center" mt="md">
+              <Anchor weight={600} color="dimmed" component={Link} to="/signup">
+                Create New Account
+              </Anchor>
+            </Text>
+          </form>
+        </Modal>
+
+        {/* login page things */}
+        <LoadingOverlay visible={visible} overlayblur={2} />
+
         <Container className={classes.LogoContainer} fluid>
           <Image src='images/logo.svg'></Image>
         </Container>
@@ -79,18 +141,18 @@ function LoginPage(props) {
 
               <Group position="apart" mt="md">
                 <Checkbox label="Remember me" />
-                <Anchor onClick={(event) => event.preventDefault()} href="#" size="sm">
+                <Anchor onClick={() => setOpened(true)} size="sm">
                   Forgot password?
                 </Anchor>
               </Group>
 
-              <Button type="submit" fullWidth mt="xl" size="md" onClick={login}>
+              <Button type="submit" fullWidth mt="xl" size="md">
                 Login
               </Button>
 
               <Text align="center" mt="md">
                 Don&apos;t have an account?{' '}
-                <Anchor href="#" weight={700} onClick={(event) => event.preventDefault()}>
+                <Anchor weight={700} component={Link} to="/signup">
                   Register
                 </Anchor>
               </Text>
