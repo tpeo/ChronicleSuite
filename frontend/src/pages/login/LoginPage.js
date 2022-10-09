@@ -1,9 +1,7 @@
 import {
   TextInput,
-  PasswordInput,
   Checkbox,
   Anchor,
-  Paper,
   Text,
   Container,
   Group,
@@ -71,7 +69,7 @@ function LoginPage(props) {
   
       validate: {
         email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-        password: (value) => (value.length == 0 ? 'Password should not be empty' : null),
+        password: (value) => (value.length === 0 ? 'Password should not be empty' : null),
     }});
 
     const handleError = (errors: typeof form.errors) => {
@@ -85,10 +83,6 @@ function LoginPage(props) {
       console.log(values);
       // setVisible((v) => !v); // loading !!! thing
       navigate('/dashboard/overview'); // temporary until implement auth
-    };
-
-    const onRegister = () => {
-      navigate('/signup');
     };
 
     return (
@@ -139,7 +133,8 @@ function LoginPage(props) {
                 icon={<IconAt size={16} />}
                 {...form.getInputProps('email')}
               />
-              <PasswordInput 
+              <TextInput
+                type="password" 
                 label="Password" 
                 placeholder="Your password" 
                 mt="md" 
