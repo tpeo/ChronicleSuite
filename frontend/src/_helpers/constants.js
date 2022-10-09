@@ -77,4 +77,88 @@ export const data = [
 		name: "10/13",
 		impressions: 3490,
 	},
+	{
+		name: "10/14",
+		impressions: 4000,
+	},
+	{
+		name: "10/15",
+		impressions: 3000,
+	},
+	{
+		name: "10/16",
+		impressions: 2000,
+	},
+	{
+		name: "10/17",
+		impressions: 2780,
+	},
+	{
+		name: "10/18",
+		impressions: 1890,
+	},
+	{
+		name: "10/19",
+		impressions: 2390,
+	},
+	{
+		name: "10/20",
+		impressions: 3490,
+	},
+	{
+		name: "10/21",
+		impressions: 4000,
+	},
+	{
+		name: "10/22",
+		impressions: 3000,
+	},
+	{
+		name: "10/23",
+		impressions: 2000,
+	},
+	{
+		name: "10/24",
+		impressions: 2780,
+	},
+	{
+		name: "10/25",
+		impressions: 1890,
+	},
+	{
+		name: "10/26",
+		impressions: 2390,
+	},
+	{
+		name: "10/27",
+		impressions: 3490,
+	},
+	{
+		name: "10/28",
+		impressions: 4000,
+	},
+	{
+		name: "10/29",
+		impressions: 3000,
+	},
+	{
+		name: "10/30",
+		impressions: 2000,
+	},
+	{
+		name: "10/31",
+		impressions: 2780,
+	},
+	{
+		name: "11/01",
+		impressions: 1890,
+	},
+	{
+		name: "11/02",
+		impressions: 2390,
+	},
+	{
+		name: "11/03",
+		impressions: 3490,
+	},
 ];
