@@ -1,9 +1,8 @@
-import { Center } from "@mantine/core";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import Dashboard from "./components/common/Dashboard";
 import DefaultLayout from "./components/layouts/DefaultLayout";
 import FullscreenLayout from "./components/layouts/FullscreenLayout";
+import Overview from "./components/Overview";
 import LoginPage from "./pages/login/LoginPage.js";
 import SignupPage from "./pages/signup/SignupPage.js";
 
@@ -33,14 +32,7 @@ function App(props) {
 				</Route>
 				<Route path="dashboard" element={<DefaultLayout tabs></DefaultLayout>}>
 					<Route index element={<div>overview</div>}></Route>
-					<Route
-						path="overview"
-						element={
-							<Center style={{ padding: "50px" }}>
-								<Dashboard />
-							</Center>
-						}
-					></Route>
+					<Route path="overview" element={<Overview />}></Route>
 					<Route path="facebook" element={<div>facebook</div>}></Route>
 					<Route path="instagram" element={<div>instagram</div>}></Route>
 					<Route path="twitter" element={<div>twitter</div>}></Route>

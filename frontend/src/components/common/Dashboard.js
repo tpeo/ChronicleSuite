@@ -28,7 +28,9 @@ function Dashboard(props) {
 		<Stack style={{ width: "60%", height: "100%", paddingTop: "30px", paddingBottom: "30px", borderRadius: "20px", boxShadow: "0px 0px 16px gray" }}>
 			<Grid align="center">
 				<Grid.Col span={1} />
-				<Grid.Col span={3}>Impressions</Grid.Col>
+				<Grid.Col span={3}>
+					<h2>Impressions</h2>
+				</Grid.Col>
 				<Grid.Col span={4} />
 				<Grid.Col span={3} align="center">
 					<Select

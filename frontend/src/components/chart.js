@@ -1,6 +1,6 @@
-import React, { PureComponent } from "react";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DateTime, Duration } from "luxon";
+import React from "react";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import * as constants from "../_helpers/constants.js";
 
 export default function Chart(props) {
