@@ -56,6 +56,12 @@ function LoginPage(props) {
       console.log(values);
     };
 
+    const onClosedForget = () => {
+      // reset all values for forget pw module
+      setOpened(false);
+      formForget.reset();
+    };
+
     const form = useForm({
       initialValues: {
         email: '',
@@ -92,7 +98,7 @@ function LoginPage(props) {
           centered
           size="md"
           opened={opened}
-          onClose={() => setOpened(false)}
+          onClose={() => onClosedForget()}
           title="Someone is locked out..." 
         >
           <form onSubmit={formForget.onSubmit(handleSubmitForget)}>
