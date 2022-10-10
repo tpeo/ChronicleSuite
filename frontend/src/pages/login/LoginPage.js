@@ -93,7 +93,7 @@ function LoginPage(props) {
           size="md"
           opened={opened}
           onClose={() => onClosedForget()}
-          title="Someone is locked out..." 
+          title="Someone seems to be locked out..." 
         >
           <form onSubmit={formForget.onSubmit(handleSubmitForget)}>
             <TextInput 

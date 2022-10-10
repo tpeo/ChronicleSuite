@@ -1,4 +1,4 @@
-import { Button, Center, createStyles, Group, Space, Step, Stepper, Paper , Container, Text, Stack, TextInput, Popover, Progress, Box} from "@mantine/core";
+import { Button, Anchor, Center, createStyles, Group, Space, Step, Stepper, Paper , Container, Text, Checkbox, Stack, TextInput, Popover, Loader, Progress, Box} from "@mantine/core";
 import { FaFacebookSquare, FaInstagramSquare, FaTwitterSquare } from "react-icons/fa";
 import { IconUserCheck, IconMailOpened, IconSocial, IconCircleCheck, IconAt, IconLock, IconCheck, IconX, IconShieldCheck } from '@tabler/icons';
 import { useState } from 'react';
@@ -14,77 +14,37 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			minHeight: 900,
 			padding: 100,
 		},
-		TopCenter: {
-			width: "100%",
-			height: "80%",
-			display: "flex",
-			justifyContent: "center",
-			alignItems: "center",
-			// alignSelf: 'center'
-		},
-		ButtonRoot: {
-			minWidth: "300px",
-		},
-		ButtonInner: {
-			justifyContent: "flex-start",
-		},
-		BottomGroup: {
-			height: "20%",
-			width: "100%",
-			// backgroundColor: "red",
-			padding: "5%",
-		},
 	};
 });
-
-function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
-	return (
-		<Text
-			color={meets ? 'teal' : 'red'}
-			sx={{ display: 'flex', alignItems: 'center' }}
-			mt={7}
-			size="sm"
-		>
-			{meets ? <IconCheck size={14} /> : <IconX size={14} />} <Box ml={10}>{label}</Box>
-		</Text>
-	);
-}
-
-const requirementsPw = [
-	{ re: /[0-9]/, label: 'Includes number' },
-	{ re: /[a-z]/, label: 'Includes lowercase letter' },
-	{ re: /[A-Z]/, label: 'Includes uppercase letter' },
-	{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
-];
-
-function getStrengthPw(password: string) {
-	let multiplier = password.length > 5 ? 0 : 1;
-  
-	requirementsPw.forEach((requirement) => {
-		if (!requirement.re.test(password)) {
-			multiplier += 1;
-		}	
-	});
-	return Math.max(100 - (100 / (requirementsPw.length + 1)) * multiplier, 10);
-}
-
 
 export default function SignupPage(props) {
 	const { classes } = useStyles();
 	const navigate = useNavigate();
+	const [visible, setVisible] = useState(false); // for loading screen between create acc and dashboard pages
 	
 	const [active, setActive] = useState(0);
 	const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
-	const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+	const prevStep = () => {
+		if (active == 0) {
+			navigate('/login');
+		} else {
+			if (active != 0) {
+				form.setFieldValue('verifyCode', '');
+				setSendingLink(false);
+			}
+			setActive((current) => (current > 0 ? current - 1 : current));
+		}
+	};
 
-	// popover checks for creating a password
-	const [popoverOpenedPw, setPopoverOpenedPw] = useState(false);
-	const [valuePw, setValuePw] = useState('');
-	const checksPw = requirementsPw.map((requirement, index) => (
-		<PasswordRequirement key={index} label={requirement.label} meets={requirement.re.test(valuePw)} />
-	));
-	const strengthPw = getStrengthPw(valuePw);
-  	const colorPw = strengthPw === 100 ? 'teal' : strengthPw > 50 ? 'yellow' : 'red';
+	// reset link
+	const [sendingLink, setSendingLink] = useState(false);
+	const sendLink = () => {
+		// TODO: stuff to actually send the email
+		setSendingLink(true);
+	};
+	const setSendLinkWidth = () => {
+		return sendingLink ? 30 : 100;
+	}
 
 	// universal form for all steps
 	const form = useForm({
@@ -92,14 +52,16 @@ export default function SignupPage(props) {
 			email: '',
 			password: '',
 			passwordConfirm: '',
-			terms: true,
+			terms: false,
+			verifyCode: ''
 		},
 	
 		validate: {
-			email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
+			email: (val) => (/^\S+@\S+$/.test(val) ? null : '     '),
 			password: (val) => (val.length < 6 ? 'Password should include at least 6 characters' : null),
 			passwordConfirm: (value, values) =>
-				value !== values.password ? 'Passwords do not match' : null,
+				value !== values.password ? '   ' : null,
+			terms: (val) => (val ? null : '    '),
 		},
 	});
 
@@ -107,7 +69,11 @@ export default function SignupPage(props) {
 		if (active === 0) {
 			if (errors.email) {
 				showNotification({ autoClose: 3000, message: 'Please provide a valid email', color: 'red' });
-			} else if (errors.passwordConfirm) {}
+			} else if (errors.passwordConfirm) {
+				showNotification({ autoClose: 3000, message: 'Passwords do not match', color: 'red' });
+			} else if (errors.terms) {
+				showNotification({ autoClose: 3000, message: 'Please accept the terms and conditions', color: 'red' });
+			}
 		}
 		
 	};
@@ -115,15 +81,21 @@ export default function SignupPage(props) {
 	// creating an account steps
 	const handleSubmit = (values: typeof form.values) => {
 		console.log(values);
+		console.log(active);
 		switch (active) {
 			case 0:
 				nextStep();
 				break;
 			
 			case 1:
+				// verify email
+				nextStep();
 				break;
 			
 			case 2:
+				// create account and go to dashboard so loading screen
+				console.log("helloo???");
+				setVisible((v) => !v);
 				break;
 
 			default:
@@ -140,7 +112,7 @@ export default function SignupPage(props) {
 			<Stepper active={active} onStepClick={setActive} completedIcon={<IconCircleCheck />} breakpoint="sm" mt="md">
 				<Stepper.Step label="First step" description="Create an account" icon={<IconUserCheck size={18} />}/>
 				<Stepper.Step label="Second step" description="Verify email" icon={<IconMailOpened size={18} />}/>
-				<Stepper.Step label="Final step" description="Get full access" icon={<IconSocial size={18}/>}/>
+				<Stepper.Step label="Final step" description="Connect socials" icon={<IconSocial size={18}/>}/>
 			</Stepper>
 
 			<form onSubmit={form.onSubmit(handleSubmit, handleError)}>
@@ -149,6 +121,9 @@ export default function SignupPage(props) {
 						{active == 0 && (
 							<>
 								{/* create an account stuff */}
+								<Text size="l" weight={500}>
+									Create your Chronicle Suite account
+								</Text>
 								<TextInput
 									required
 									label="Email" 
@@ -179,12 +154,17 @@ export default function SignupPage(props) {
 										{...form.getInputProps('passwordConfirm')}
 									/>
 								</Group>
+								<Checkbox
+									label="I accept terms and conditions"
+									checked={form.values.terms}
+									onChange={(event) => form.setFieldValue('terms', event.currentTarget.checked)}
+								/>
 							</>
 						)}
 
 						{active == 1 && (
 							<>
-								<Text size="lg" weight={500}>
+								<Text size="l" weight={500}>
 									Please verify your email
 								</Text>
 								{/* some icon for email verification */}
@@ -193,10 +173,17 @@ export default function SignupPage(props) {
 									type="password" 
 									label="Enter code" 
 									placeholder="Your code" 
-									mt="md" 
+									mt="xs" 
 									size="md"
 									icon={<IconShieldCheck size={16} />}
-									{...form.getInputProps('verifyEmail')}
+									rightSectionWidth={setSendLinkWidth()}
+									rightSection={
+										((sendingLink && <Loader size="xs" />) 
+											|| 	<Anchor component="button" type="button" color="dimmed" onClick={() => sendLink()} size="xs">
+													Resend link?
+												</Anchor>)
+									}
+									{...form.getInputProps('verifyCode')}
 								/>
 							</>
 						)}
@@ -236,10 +223,13 @@ export default function SignupPage(props) {
 						<Text color="gray">Back</Text>
 					</Button>
 					<Button type="submit" >
-						{active === 2 && (
+						{active == 2 && (
 							<Text>Create Account</Text>
 						)}
-						{active !== 2 && (
+						{active == 1 && (
+							<Text>Verify Email</Text>
+						)}
+						{active == 0 && (
 							<Text>Next</Text>
 						)}
 					</Button>
