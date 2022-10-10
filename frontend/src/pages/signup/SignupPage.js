@@ -229,7 +229,7 @@ export default function SignupPage(props) {
 						{/* TODO: Add verification for form inputs */}
 						{active === 0 && <Text onClick={nextStep}>Next</Text>}
 						{active === 1 && <Text onClick={nextStep}>Verify Email</Text>}
-						{active === 2 && <Text onClick={() => navigate("/dashboard/overview")}>Create Account</Text>}
+						{active === 2 && <Text onClick={() => navigate("/dashboard")}>Create Account</Text>}
 					</Button>
 				</Group>
 			</form>
