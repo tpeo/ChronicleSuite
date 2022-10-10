@@ -47,6 +47,8 @@ export default function DefaultLayout(props) {
 				width={200}
 				fit="contain"
 				src="/images/logo.svg"
+				onClick={() => navigate("/dashboard")}
+				style={{ cursor: "pointer" }}
 			></Image>
 		</Group>
 	);
