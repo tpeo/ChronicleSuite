@@ -1,7 +1,7 @@
 import cors from "cors";
 import admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
-import functions from "firebase-functions";
+import functions, { logger } from "firebase-functions";
 import fetch from "node-fetch";
 
 admin.initializeApp();
@@ -206,6 +206,7 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 		});
 
 		const postData = { caption, created_time, permalink_url, impressions, comments: parsedComments, platform: "Meta" };
+		functions.logger.log(postData);
 		await admin.firestore().collection("posts").doc(postID).set(postData);
 		const userData = await admin.firestore().collection("users").doc(userID).get();
 		// functions.logger.log(userData.data());

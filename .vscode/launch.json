@@ -5,12 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "pwa-msedge",
+            "type": "msedge",
             "request": "launch",
             "name": "Launch Edge against localhost",
-            "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}/frontend/chronicle-suite"
+            "url": "https://localhost:3000/dashboard/overview",
+            "webRoot": "${workspaceFolder}/frontend",
+            "preLaunchTask": "run frontend",
+            "postDebugTask": "Terminate All Tasks"
         }
-        
     ]
 }
