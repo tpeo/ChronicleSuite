@@ -1,169 +1,145 @@
-import {
-  TextInput,
-  Checkbox,
-  Anchor,
-  Text,
-  Container,
-  Group,
-  Button,
-  Image,
-  Divider,
-  createStyles,
-  LoadingOverlay,
-  Modal,
-  Loader,
-} from '@mantine/core';
-import { useState } from 'react';
-import { useForm } from '@mantine/form';
-import { showNotification } from '@mantine/notifications';
-import { reduce } from 'rxjs';
-import { Link , useNavigate} from 'react-router-dom';
-import { IconLock, IconAt } from '@tabler/icons';
+import { Anchor, Button, Checkbox, Container, createStyles, Divider, Group, Image, LoadingOverlay, Modal, Text, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { showNotification } from "@mantine/notifications";
+import { IconAt, IconLock } from "@tabler/icons";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const useStyles = createStyles((theme, _params, getRef) => {
-  return {
-    LogoContainer: {
-      height: "40%",
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-end',
-      backgroundColor: 'black',
-      paddingBottom: '5%'
-    },
-  };
+	return {
+		LogoContainer: {
+			height: "40%",
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "flex-end",
+			backgroundColor: "black",
+			paddingBottom: "5%",
+		},
+	};
 });
 
 function LoginPage(props) {
-    const { classes } = useStyles()
-    const navigate = useNavigate();
-    const [visible, setVisible] = useState(false); // for loading screen between login and dashboard pages
-    const [opened, setOpened] = useState(false); // for forget password modal
+	const { classes } = useStyles();
+	const navigate = useNavigate();
+	const [visible, setVisible] = useState(false); // for loading screen between login and dashboard pages
+	const [opened, setOpened] = useState(false); // for forget password modal
 
-    const formForget = useForm({
-      initialValues: {
-        email: '',
-      },
+	const formForget = useForm({
+		initialValues: {
+			email: "",
+		},
 
-      validate: {
-        email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      },
-    });
+		validate: {
+			email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+		},
+	});
 
-    // TODO: handle sending a link to given email
-    const handleSubmitForget = (values: typeof form.values) => {
-      console.log(values);
-    };
+	// TODO: handle sending a link to given email
+	const handleSubmitForget = (values) => {
+		console.log(values);
+	};
 
-    const onClosedForget = () => {
-      // reset all values for forget pw module
-      setOpened(false);
-      formForget.reset();
-    };
+	const onClosedForget = () => {
+		// reset all values for forget pw module
+		setOpened(false);
+		formForget.reset();
+	};
 
-    const form = useForm({
-      initialValues: {
-        email: '',
-        password: '',
-        rememberMe: false,
-      },
-  
-      validate: {
-        email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-        password: (value) => (value.length === 0 ? 'Password should not be empty' : null),
-    }});
+	const form = useForm({
+		initialValues: {
+			email: "",
+			password: "",
+			rememberMe: false,
+		},
 
-    const handleError = (errors: typeof form.errors) => {
-      if (errors.email) {
-        showNotification({ autoClose: 3000, message: 'Please provide a valid email', color: 'red' });
-      }
-    };
+		validate: {
+			email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+			password: (value) => (value.length === 0 ? "Password should not be empty" : null),
+		},
+	});
 
-    // TODO: login functionality
-    const handleSubmit = (values: typeof form.values) => {
-      console.log(values);
-      // setVisible((v) => !v); // loading !!! thing
-      navigate('/dashboard/overview'); // temporary until implement auth
-    };
+	const handleError = (errors) => {
+		if (errors.email) {
+			showNotification({ autoClose: 3000, message: "Please provide a valid email", color: "red" });
+		}
+	};
 
-    return (
-      <>
-        {/* forget password modal TODO: make it prettier spacing is weird, dunno how to get notifs on top of modal*/}
-        <Modal 
-          centered
-          size="md"
-          opened={opened}
-          onClose={() => onClosedForget()}
-          title="Someone seems to be locked out..." 
-        >
-          <form onSubmit={formForget.onSubmit(handleSubmitForget)}>
-            <TextInput 
-              label="Your email" 
-              placeholder="example@gmail.com" 
-              description="Enter your email to get a reset link"
-              size="sm"
-              icon={<IconAt size={16} />}
-              {...formForget.getInputProps('email')}
-            />
+	// TODO: login functionality
+	const handleSubmit = (values) => {
+		console.log(values);
+		// setVisible((v) => !v); // loading !!! thing
+		navigate("/dashboard/overview"); // temporary until implement auth
+	};
 
-            <Button type="submit" fullWidth mt="xl" size="md">Send Link</Button>
+	return (
+		<>
+			{/* forget password modal TODO: make it prettier spacing is weird, dunno how to get notifs on top of modal*/}
+			<Modal centered size="md" opened={opened} onClose={() => onClosedForget()} title="Someone seems to be locked out...">
+				<form onSubmit={formForget.onSubmit(handleSubmitForget)}>
+					<TextInput
+						label="Your email"
+						placeholder="example@gmail.com"
+						description="Enter your email to get a reset link"
+						size="sm"
+						icon={<IconAt size={16} />}
+						{...formForget.getInputProps("email")}
+					/>
 
-            <Divider label="OR" labelPosition="center" my="lg" />
+					<Button type="submit" fullWidth mt="xl" size="md">
+						Send Link
+					</Button>
 
-            <Text align="center" mt="md">
-              <Anchor weight={600} color="dimmed" component={Link} to="/signup">
-                Create New Account
-              </Anchor>
-            </Text>
-          </form>
-        </Modal>
+					<Divider label="OR" labelPosition="center" my="lg" />
 
-        {/* login page things */}
-        <LoadingOverlay visible={visible} overlayblur={2} />
+					<Text align="center" mt="md">
+						<Anchor weight={600} color="dimmed" component={Link} to="/signup">
+							Create New Account
+						</Anchor>
+					</Text>
+				</form>
+			</Modal>
 
-        <Container className={classes.LogoContainer} fluid>
-          <Image src='images/logo.svg'></Image>
-        </Container>
+			{/* login page things */}
+			<LoadingOverlay visible={visible} overlayblur={2} />
 
-        <Container size={420} my={50} p="l" >
-          <form onSubmit={form.onSubmit(handleSubmit, handleError)}>
-              <TextInput 
-                label="Email" 
-                placeholder="example@gmail.com" 
-                size="md"
-                icon={<IconAt size={16} />}
-                {...form.getInputProps('email')}
-              />
-              <TextInput
-                type="password" 
-                label="Password" 
-                placeholder="Your password" 
-                mt="md" 
-                size="md"
-                icon={<IconLock size={16} />}
-                {...form.getInputProps('password')}
-              />
+			<Container className={classes.LogoContainer} fluid>
+				<Image src="images/logo.svg"></Image>
+			</Container>
 
-              <Group position="apart" mt="md">
-                <Checkbox label="Remember me" />
-                <Anchor onClick={() => setOpened(true)} size="sm">
-                  Forgot password?
-                </Anchor>
-              </Group>
+			<Container size={420} my={50} p="l">
+				<form onSubmit={form.onSubmit(handleSubmit, handleError)}>
+					<TextInput label="Email" placeholder="example@gmail.com" size="md" icon={<IconAt size={16} />} {...form.getInputProps("email")} />
+					<TextInput
+						type="password"
+						label="Password"
+						placeholder="Your password"
+						mt="md"
+						size="md"
+						icon={<IconLock size={16} />}
+						{...form.getInputProps("password")}
+					/>
 
-              <Button type="submit" fullWidth mt="xl" size="md">
-                Login
-              </Button>
+					<Group position="apart" mt="md">
+						<Checkbox label="Remember me" />
+						<Anchor onClick={() => setOpened(true)} size="sm">
+							Forgot password?
+						</Anchor>
+					</Group>
 
-              <Text align="center" mt="md">
-                Don&apos;t have an account?{' '}
-                <Anchor weight={700} component={Link} to="/signup">
-                  Register
-                </Anchor>
-              </Text>
-          </form>
-        </Container>
-      </>
-    ) 
+					<Button type="submit" fullWidth mt="xl" size="md">
+						Login
+					</Button>
+
+					<Text align="center" mt="md">
+						Don&apos;t have an account?{" "}
+						<Anchor weight={700} component={Link} to="/signup">
+							Register
+						</Anchor>
+					</Text>
+				</form>
+			</Container>
+		</>
+	);
 }
 
-export default LoginPage
+export default LoginPage;

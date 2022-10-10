@@ -1,6 +1,6 @@
-import { Button, Grid, Select, Stack } from "@mantine/core";
+import { Button, createStyles, Grid, Select, Stack } from "@mantine/core";
 import { useState } from "react";
-import * as constants from "../../_helpers/constants.js";
+import data from "../../_helpers/fillerData.js";
 import Chart from "../chart.js";
 
 function exportToCSV(data) {
@@ -21,15 +21,30 @@ function exportToCSV(data) {
 	link.remove();
 }
 
+const useStyles = createStyles((theme, _params, getRef) => {
+	return {
+		Container: {
+			width: "60%",
+			height: "100%",
+			paddingTop: "30px",
+			paddingBottom: "30px",
+		},
+		Header: {
+			fontSize: "28px",
+		},
+	};
+});
+
 function Dashboard(props) {
+	const { classes } = useStyles();
 	const [dayRange, setDayRange] = useState("7");
 
 	return (
-		<Stack style={{ width: "60%", height: "100%", paddingTop: "30px", paddingBottom: "30px", borderRadius: "20px", boxShadow: "0px 0px 16px gray" }}>
+		<Stack className={classes.Container}>
 			<Grid align="center">
 				<Grid.Col span={1} />
 				<Grid.Col span={3}>
-					<h2>Impressions</h2>
+					<div className={classes.Header}>Impressions</div>
 				</Grid.Col>
 				<Grid.Col span={4} />
 				<Grid.Col span={3} align="center">
@@ -48,10 +63,10 @@ function Dashboard(props) {
 				<Grid.Col span={1} />
 			</Grid>
 			<div style={{ height: "300px" }}>
-				<Chart dayRange={dayRange} />
+				<Chart dayRange={dayRange} data={data.impressions} keyName="impressions" />
 			</div>
 			<div style={{ display: "flex", justifyContent: "center" }}>
-				<Button onClick={() => exportToCSV(constants.data)}>Create Spreadsheet</Button>
+				<Button onClick={() => exportToCSV(data.impressions)}>Create Spreadsheet</Button>
 			</div>
 		</Stack>
 	);

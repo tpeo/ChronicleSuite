@@ -1,4 +1,4 @@
-import { createStyles, Global, AppShell, Navbar, Header, Container, Group, Grid, Image, Tabs } from "@mantine/core";
+import { AppShell, createStyles, Group, Header, Image, Tabs } from "@mantine/core";
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
@@ -15,6 +15,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			display: "flex",
 			flexDirection: "column",
 			padding: "0",
+			paddingTop: "70px",
 		},
 		TabsListWrapper: {
 			padding: "10px 10px 0",
@@ -36,42 +37,29 @@ export default function DefaultLayout(props) {
 		if (!validTabs.includes(active)) return alert("error with tab navigation");
 		setActiveTab(active);
 		navigate(active);
-		// switch (active) {
-		// 	case 0:
-		// 		navigate("overview");
-		// 		break;
-		// 	case 1:
-		// 		navigate("facebook");
-		// 		break;
-		// 	case 2:
-		// 		navigate("instagram");
-		// 		break;
-		// 	case 3:
-		// 		navigate("twitter");
-		// 		break;
-		// 	default:
-		// 		alert("error with tab navigation");
-		// 		break;
-		// }
 	}
 
 	const HeaderContent = (
-		<>
-			<Group>
-				<Image classNames={{ imageWrapper: classes.LogoWrapper, image: classes.LogoImage }} height={40} src="images/logo.svg"></Image>
-			</Group>
-		</>
+		<Group position="left">
+			<Image
+				classNames={{ imageWrapper: classes.LogoWrapper, image: classes.LogoImage }}
+				height={40}
+				width={200}
+				fit="contain"
+				src="/images/logo.svg"
+			></Image>
+		</Group>
 	);
 
 	return (
 		<>
 			<AppShell
 				padding="md"
-				// header={
-				// 	<Header height={70} className={classes.Header}>
-				// 		{HeaderContent}
-				// 	</Header>
-				// }
+				header={
+					<Header height={70} className={classes.Header}>
+						{HeaderContent}
+					</Header>
+				}
 				classNames={{
 					// root: 'your-root-class',
 					// body: 'your-body-class',
@@ -79,7 +67,7 @@ export default function DefaultLayout(props) {
 				}}
 			>
 				{props.tabs ? (
-					<Tabs defaultValue="overview" tabPadding="md" value={activeTab} onTabChange={onChange} className={classes.TabsListWrapper}>
+					<Tabs defaultValue="overview" value={activeTab} onTabChange={onChange} className={classes.TabsListWrapper}>
 						<Tabs.List>
 							<Tabs.Tab value="overview">Overview</Tabs.Tab>
 							<Tabs.Tab value="facebook">Facebook</Tabs.Tab>
