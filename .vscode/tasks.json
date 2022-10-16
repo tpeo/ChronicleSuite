@@ -64,7 +64,7 @@
         {
             "label": "firebase stop",
             "type": "shell",
-            "command": "npx kill-port 8080",
+            "command": "npx kill-port 4000 5000 8080",
         },
         {
             "label": "Terminate All Tasks",

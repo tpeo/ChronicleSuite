@@ -1,14 +1,24 @@
 import cors from "cors";
 import admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
-import functions, { logger } from "firebase-functions";
+import functions from "firebase-functions";
 import fetch from "node-fetch";
 
 admin.initializeApp();
 
+const setCors = (req, res) => {
+	functions.logger.log(res);
+
+	cors(req, res, () => {
+		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
+	});
+};
+
 // TODO: Test generation of long term access token
 // Get ltat, call /me endpoint to get user name, send to ChronicleSuite
-const getUserID = functions.https.onRequest(async (req, res) => {
+exports.getUserID = functions.https.onRequest(async (req, res) => {
+	// setCors(req, res);
+	functions.logger.log("called");
 	cors(req, res, () => {
 		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
 	});
@@ -35,9 +45,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 // Firebase DB
 // https://developers.facebook.com/docs/pages/access-tokens/
 const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
-	cors(req, res, () => {
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
+	setCors(req, res);
 	// Check if Meta Auth Token (long term access token)
 	// is stored in Firebase DB
 	// getUserInfo for user id
@@ -73,9 +81,7 @@ const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 });
 
 const getUserInfo = functions.https.onRequest(async (req, res) => {
-	cors(req, res, () => {
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
+	setCors(req, res);
 	const userID = req.query.userID;
 	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 	const params = new URLSearchParams({ access_token: userAccessToken });
@@ -87,10 +93,8 @@ const getUserInfo = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `User Info with ID: ${writeResult} added.` });
 });
 
-const storePageAccessToken = functions.https.onRequest(async (req, res) => {
-	cors(req, res, () => {
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
+const getPageAccessToken = functions.https.onRequest(async (req, res) => {
+	setCors(req, res);
 	const pageName = req.query.page_name;
 	const userID = req.query.userID;
 	// functions.logger.log(pageName);
@@ -121,9 +125,7 @@ const storePageAccessToken = functions.https.onRequest(async (req, res) => {
 });
 
 const getPagePostInsights = functions.https.onRequest(async (req, res) => {
-	cors(req, res, () => {
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
+	setCors(req, res);
 	const userID = req.query.userID;
 
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
@@ -221,4 +223,4 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Successfully wrote page posts to firestore db` });
 });
 
-export default { getUserID, storeMetaAuthToken, getUserInfo, getPageAccessToken: storePageAccessToken, getPagePostInsights };
+export default { getUserID, storeMetaAuthToken, getUserInfo, getPageAccessToken, getPagePostInsights };

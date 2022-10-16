@@ -1,7 +1,8 @@
 import * as constants from "../_helpers/constants.js";
 
 async function fetchUserID() {
-	let accessToken = window.FB.getAccessToken();
+	const accessToken = window.FB.getAccessToken();
+	if (!accessToken) return console.error("Not Logged in to Facebook");
 	// get user id endpoint
 	let params = new URLSearchParams({ token: accessToken });
 	let url = constants.FIREBASE_EMULATOR_URL + "/chroniclesuite/us-central1/default-meta-getUserID?" + params.toString();
@@ -25,8 +26,8 @@ async function fetchUserID() {
 	return response;
 }
 // fetchPageInsights();
-fetchUserID().then((response) => {
-	response.json().then((response) => console.log(response));
-});
+// fetchUserID().then((response) => {
+// 	response.json().then((response) => console.log(response));
+// });
 
 export default fetchUserID;

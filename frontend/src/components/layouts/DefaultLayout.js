@@ -69,7 +69,7 @@ export default function DefaultLayout(props) {
 				}}
 			>
 				{props.tabs ? (
-					<Tabs defaultValue="overview" value={activeTab} onTabChange={onChange} className={classes.TabsListWrapper}>
+					<Tabs defaultValue="overview" orientation="vertical" value={activeTab} onTabChange={onChange} className={classes.TabsListWrapper}>
 						<Tabs.List>
 							<Tabs.Tab value="overview">Overview</Tabs.Tab>
 							<Tabs.Tab value="facebook">Facebook</Tabs.Tab>
