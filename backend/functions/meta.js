@@ -1,14 +1,10 @@
-import cors from "cors";
-import admin from "firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
-import functions from "firebase-functions";
-import fetch from "node-fetch";
+const cors = require("cors")({ origin: true });
+const { FieldValue } = require("firebase-admin/firestore");
+const functions = require("firebase-functions");
+const fetch = require("node-fetch");
+const { admin } = require("./init.js");
 
-admin.initializeApp();
-
-const setCors = (req, res) => {
-	functions.logger.log(res);
-
+const applyMiddleware = (req, res) => {
 	cors(req, res, () => {
 		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
 	});
@@ -17,11 +13,7 @@ const setCors = (req, res) => {
 // TODO: Test generation of long term access token
 // Get ltat, call /me endpoint to get user name, send to ChronicleSuite
 exports.getUserID = functions.https.onRequest(async (req, res) => {
-	// setCors(req, res);
-	functions.logger.log("called");
-	cors(req, res, () => {
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
+	applyMiddleware(req, res);
 
 	const accessToken = req?.query?.token?.toString();
 	if (!accessToken) {
@@ -41,17 +33,18 @@ exports.getUserID = functions.https.onRequest(async (req, res) => {
 });
 
 // Gets long term access token for Meta Authentiation
-// from ChronicleSuite frontend and stores it in
+// = require( ChronicleSuite frontend and stores it i)n
 // Firebase DB
 // https://developers.facebook.com/docs/pages/access-tokens/
-const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
-	setCors(req, res);
+exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
+	applyMiddleware(req, res);
+
 	// Check if Meta Auth Token (long term access token)
 	// is stored in Firebase DB
 	// getUserInfo for user id
 	const userID = req.query.userID;
 
-	// Get short term acces token from req
+	// Get short term acces token = require( re)q
 	const metaAuthShortTermAccessToken = req?.query?.token?.toString();
 
 	if (!metaAuthShortTermAccessToken) {
@@ -80,8 +73,9 @@ const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Access Token ${longTermAccessToken} added.` });
 });
 
-const getUserInfo = functions.https.onRequest(async (req, res) => {
-	setCors(req, res);
+exports.getUserInfo = functions.https.onRequest(async (req, res) => {
+	applyMiddleware(req, res);
+
 	const userID = req.query.userID;
 	const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 	const params = new URLSearchParams({ access_token: userAccessToken });
@@ -93,13 +87,11 @@ const getUserInfo = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `User Info with ID: ${writeResult} added.` });
 });
 
-const getPageAccessToken = functions.https.onRequest(async (req, res) => {
-	setCors(req, res);
+exports.getPageAccessToken = functions.https.onRequest(async (req, res) => {
+	applyMiddleware(req, res);
+
 	const pageName = req.query.page_name;
 	const userID = req.query.userID;
-	// functions.logger.log(pageName);
-	// functions.logger.log(userID);
-	// const userAccessToken = await (await admin.firestore().collection("users").doc(userID).get()).data()?.metaAuthToken;
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
 	if (!user) {
 		res.json({ result: `User with ID ${userID} doesn't exist` });
@@ -124,8 +116,9 @@ const getPageAccessToken = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Page Insights with ID: ${writeResult} added.` });
 });
 
-const getPagePostInsights = functions.https.onRequest(async (req, res) => {
-	setCors(req, res);
+exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
+	applyMiddleware(req, res);
+
 	const userID = req.query.userID;
 
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
@@ -144,11 +137,9 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	let response = await (await fetch(url.toString())).json();
 
 	const pagePosts = response.data;
-	// functions.logger.log(pagePosts);
 
 	pagePosts.forEach(async (post) => {
 		const { message: caption, created_time, id: postID } = post;
-		// functions.logger.log(postID);
 
 		const batch = [
 			{
@@ -162,7 +153,7 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 				relative_url:
 					`${postID}/insights?` +
 					new URLSearchParams({
-						metric: "post_reactions_by_type_total",
+						metric: "post_reactions_like_total",
 						access_token: pageAccessToken,
 					}).toString(),
 			},
@@ -185,35 +176,21 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 			})
 		).json();
 
-		// functions.logger.log(caption, created_time);
 		const [postMetaData, reactions, comments] = response;
 		const permalink_url = JSON.parse(postMetaData.body).permalink_url;
-		// functions.logger.log(postMetaData.body);
-		// functions.logger.log(JSON.parse(postMetaData.body));
-		let impressions = 0;
-		JSON.parse(reactions.body).data.forEach((element) => {
+		const reactionData = JSON.parse(reactions.body).data;
+		const filteredReactions = {};
+		reactionData.forEach((element) => {
 			const { name, values } = element;
-			values.forEach((value) => {
-				// functions.logger.log(value);
-				for (const [key, impression] of Object.entries(value)) {
-					impressions += impression;
-					// functions.logger.log(impression);
-				}
-			});
-		});
-		const parsedComments = [];
-		JSON.parse(comments.body).data.forEach((comment) => {
-			// functions.logger.log(comment.message);
-			parsedComments.push(comment.message);
+			const totalReactions = values.reduce((s, value) => s + Object.values(value).reduce((r, i) => r + parseInt(i), 0), 0);
+			filteredReactions[name] = totalReactions;
 		});
 
-		const postData = { caption, created_time, permalink_url, impressions, comments: parsedComments, platform: "Meta" };
-		functions.logger.log(postData);
+		const commentData = JSON.parse(comments.body).data;
+		const parsedComments = commentData.map((comment) => comment.message);
+
+		const postData = { caption, created_time, permalink_url, reactions: filteredReactions, comments: parsedComments, platform: "Meta" };
 		await admin.firestore().collection("posts").doc(postID).set(postData);
-		const userData = await admin.firestore().collection("users").doc(userID).get();
-		// functions.logger.log(userData.data());
-		// const posts = userData.data().posts ?? [];
-		// posts.push(postID);
 		await admin
 			.firestore()
 			.collection("users")
@@ -222,5 +199,3 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	});
 	res.json({ result: `Successfully wrote page posts to firestore db` });
 });
-
-export default { getUserID, storeMetaAuthToken, getUserInfo, getPageAccessToken, getPagePostInsights };

@@ -34,9 +34,9 @@
         {
             "label": "run backend",
             "type": "shell",
-            "command": "firebase emulators:start",
+            "command": "npm run serve",
             "options": {
-                "cwd": "${workspaceFolder}/backend"
+                "cwd": "${workspaceFolder}/backend/functions"
             },
             "dependsOn": "firebase stop",
             "isBackground": true,

@@ -1,4 +1,9 @@
-import meta from "./meta.js";
-import google from "./google.js";
+// The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
+const functions = require("firebase-functions");
+const { admin } = require("./init.js");
 
-export default { meta, google };
+const google = require("./google.js");
+const meta = require("./meta.js");
+
+exports.meta = meta;
+exports.google = google;
