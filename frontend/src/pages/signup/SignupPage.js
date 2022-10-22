@@ -5,7 +5,9 @@ import { IconAt, IconCircleCheck, IconLock, IconMailOpened, IconShieldCheck, Ico
 import { useState } from "react";
 import { FaFacebookSquare, FaInstagramSquare, FaTwitterSquare } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import useOAuth from "../../_helpers/useOAuth";
 import { facebookAccountService } from "../../_services/facebook.account.service";
+import env from "../../env";
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	return {
@@ -17,6 +19,12 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 export default function SignupPage(props) {
+	const metaOAuth = useOAuth({
+		authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
+		clientId: env.REACT_APP_FACEBOOK_APP_ID,
+		redirectUri: "https://localhost:3000/callback",
+		scope: "",
+	});
 	const { classes } = useStyles();
 	const navigate = useNavigate();
 	const [visible, setVisible] = useState(false); // for loading screen between create acc and dashboard pages
@@ -192,7 +200,8 @@ export default function SignupPage(props) {
 									Add your social accounts to get started!
 								</Text>
 								<Button
-									onClick={facebookAccountService.login}
+									// onClick={facebookAccountService.login}
+									onClick={metaOAuth}
 									leftIcon={<FaFacebookSquare />}
 									variant="white"
 									size="xl"

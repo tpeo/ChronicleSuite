@@ -1,12 +1,11 @@
-import { Button } from "@mantine/core";
 import { Navigate, Route, Routes } from "react-router-dom";
+import OAuthPopup from "../components/common/OAuthPopup";
 import DefaultLayout from "../components/layouts/DefaultLayout";
 import FullscreenLayout from "../components/layouts/FullscreenLayout";
 import Meta from "../components/meta/Meta";
 import Overview from "../components/Overview";
 import LoginPage from "../pages/login/LoginPage.js";
 import SignupPage from "../pages/signup/SignupPage.js";
-import fetchUserID from "../_services/GetMetaData";
 
 function Navigation(props) {
 	return (
@@ -27,6 +26,7 @@ function Navigation(props) {
 					<Route path="instagram" element={<div>instagram</div>}></Route>
 					<Route path="twitter" element={<div>twitter</div>}></Route>
 				</Route>
+				<Route element={<OAuthPopup />} path="callback" />
 			</Route>
 		</Routes>
 	);
