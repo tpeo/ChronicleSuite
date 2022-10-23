@@ -1,5 +1,4 @@
-import { useCallback, useRef, useState } from "react";
-import { FaConnectdevelop } from "react-icons/fa";
+import { useRef, useState } from "react";
 
 const OAUTH_STATE_KEY = "react-use-oauth2-state-key";
 const POPUP_HEIGHT = 700;
@@ -53,22 +52,24 @@ const enhanceAuthorizeUrl = (authorizeUrl, clientId, redirectUri, scope, state) 
 	return url.toString();
 };
 
-const formatExchangeCodeForTokenServerURL = (serverUrl, clientId, code, redirectUri) => {
+const fetchAccessToken = async (serverUrl, clientId, code, redirectUri, platform) => {
 	const url = new URL(serverUrl);
 	url.searchParams.append("client_id", clientId);
 	url.searchParams.append("code", code);
 	url.searchParams.append("redirect_uri", redirectUri);
-	return url.toString();
+	// url.searchParams.append("platform", platform);
+	const response = await fetch(url.toString());
+	return response;
 };
 
 const useOAuth = (props) => {
-	const { authorizeUrl, clientId, redirectUri, scope = "" } = props;
+	const { platform, authorizeUrl, clientId, redirectUri, accessTokenUrl, scope = "" } = props;
 
 	const intervalRef = useRef();
 	const popupRef = useRef();
 	const [{ loading, error }, setUI] = useState({ loading: false, error: null });
 
-	const getAuth = useCallback(() => {
+	const getAuth = () => {
 		// 1. Init
 		setUI({
 			loading: true,
@@ -96,7 +97,7 @@ const useOAuth = (props) => {
 						});
 					} else {
 						const code = message?.data?.payload;
-						const response = await fetch(formatExchangeCodeForTokenServerURL("https://your-server.com/token", clientId, code, redirectUri));
+						const response = await fetchAccessToken(accessTokenUrl, clientId, code, redirectUri, platform);
 						if (!response.ok) {
 							setUI({
 								loading: false,
@@ -148,7 +149,7 @@ const useOAuth = (props) => {
 			window.removeEventListener("message", handleMessageListener);
 			if (intervalRef.current) clearInterval(intervalRef.current);
 		};
-	});
+	};
 
 	return getAuth;
 };

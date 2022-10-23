@@ -6,8 +6,6 @@ const OAUTH_RESPONSE = "react-use-oauth2-response";
 
 const checkState = (receivedState) => {
 	const state = sessionStorage.getItem(OAUTH_STATE_KEY);
-	console.log(state);
-	console.log(receivedState);
 	return state === receivedState;
 };
 

@@ -1,30 +1,28 @@
-const cors = require("cors")({ origin: true });
-const { FieldValue } = require("firebase-admin/firestore");
-const functions = require("firebase-functions");
-const fetch = require("node-fetch");
-const { admin } = require("./init.js");
+import { FieldValue } from "firebase-admin/firestore";
+import functions from "firebase-functions";
+import fetch from "node-fetch";
+import common from "./common.js";
+import initAdmin from "./init.js";
 
-const applyMiddleware = (req, res) => {
-	cors(req, res, () => {
-		res.set("Access-Control-Allow-Origin", "https://localhost:3000");
-	});
-};
+const { getPlatformAccessToken, applyMiddleware, safeFetch } = common;
+const { admin } = initAdmin;
+
+const getAccessToken = getPlatformAccessToken("meta");
 
 // TODO: Test generation of long term access token
 // Get ltat, call /me endpoint to get user name, send to ChronicleSuite
-exports.getUserID = functions.https.onRequest(async (req, res) => {
+const getUserID = functions.https.onRequest(async (req, res) => {
 	applyMiddleware(req, res);
 
 	const accessToken = req?.query?.token?.toString();
-	if (!accessToken) {
-		res.json({ result: "Access Token undefined" });
-		return;
-	}
+	if (!accessToken) return res.json({ result: "Access Token undefined" });
+
 	const params = new URLSearchParams({ access_token: accessToken });
 	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
-	const response = await (await fetch(url.toString())).json();
+	const response = safeFetch(url);
+	if (response.error) return res.json({ error: response.error });
 	functions.logger.log(response);
 	const userID = response.id;
 	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userID });
@@ -33,10 +31,10 @@ exports.getUserID = functions.https.onRequest(async (req, res) => {
 });
 
 // Gets long term access token for Meta Authentiation
-// = require( ChronicleSuite frontend and stores it i)n
+// from ( ChronicleSuite frontend and stores it i)n
 // Firebase DB
 // https://developers.facebook.com/docs/pages/access-tokens/
-exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
+const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	applyMiddleware(req, res);
 
 	// Check if Meta Auth Token (long term access token)
@@ -44,13 +42,10 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	// getUserInfo for user id
 	const userID = req.query.userID;
 
-	// Get short term acces token = require( re)q
+	// Get short term acces token from ( re)q
 	const metaAuthShortTermAccessToken = req?.query?.token?.toString();
 
-	if (!metaAuthShortTermAccessToken) {
-		res.json({ result: "Short Term Access Token undefined" });
-		return;
-	}
+	if (!metaAuthShortTermAccessToken) return res.json({ result: "Short Term Access Token undefined" });
 
 	// Get long term access token
 	const params = new URLSearchParams({
@@ -61,8 +56,8 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	});
 	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
 
-	const response = await (await fetch(url.toString())).json();
-	if (response.error) res.json({ error: true });
+	const response = safeFetch(url);
+	if (response.error) return res.json({ error: response.error });
 	functions.logger.log(response);
 
 	const longTermAccessToken = response.access_token;
@@ -73,7 +68,7 @@ exports.storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Access Token ${longTermAccessToken} added.` });
 });
 
-exports.getUserInfo = functions.https.onRequest(async (req, res) => {
+const getUserInfo = functions.https.onRequest(async (req, res) => {
 	applyMiddleware(req, res);
 
 	const userID = req.query.userID;
@@ -82,20 +77,20 @@ exports.getUserInfo = functions.https.onRequest(async (req, res) => {
 	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
-	const response = await (await fetch(url.toString())).json();
+	const response = safeFetch(url);
+	if (response.error) return res.json({ error: response.error });
 	const writeResult = await admin.firestore().collection("users").doc(userID).update({ userInfo: response });
 	res.json({ result: `User Info with ID: ${writeResult} added.` });
 });
 
-exports.getPageAccessToken = functions.https.onRequest(async (req, res) => {
+const getPageAccessToken = functions.https.onRequest(async (req, res) => {
 	applyMiddleware(req, res);
 
 	const pageName = req.query.page_name;
 	const userID = req.query.userID;
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
 	if (!user) {
-		res.json({ result: `User with ID ${userID} doesn't exist` });
-		return;
+		return res.json({ result: `User with ID ${userID} doesn't exist` });
 	}
 
 	const userAccessToken = user.metaAuthToken;
@@ -103,7 +98,8 @@ exports.getPageAccessToken = functions.https.onRequest(async (req, res) => {
 	const params = new URLSearchParams({ access_token: userAccessToken });
 	const url = new URL(`https://graph.facebook.com/v13.0/${userID}/accounts?` + params.toString());
 
-	const response = await (await fetch(url.toString())).json();
+	const response = safeFetch(url);
+	if (response.error) return res.json({ error: response.error });
 
 	const pages = response.data;
 	if (!pages) return res.json({ error: "No pages found under this account" });
@@ -116,16 +112,13 @@ exports.getPageAccessToken = functions.https.onRequest(async (req, res) => {
 	res.json({ result: `Page Insights with ID: ${writeResult} added.` });
 });
 
-exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
+const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	applyMiddleware(req, res);
 
 	const userID = req.query.userID;
 
 	const user = await (await admin.firestore().collection("users").doc(userID).get()).data();
-	if (!user) {
-		res.json({ result: `User with ID ${userID} doesn't exist` });
-		return;
-	}
+	if (!user) return res.json({ result: `User with ID ${userID} doesn't exist` });
 
 	const pageId = user.pageId;
 	const pageAccessToken = user.pageAccessToken;
@@ -134,7 +127,8 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	const params = new URLSearchParams({ access_token: pageAccessToken });
 	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts?` + params.toString());
 
-	let response = await (await fetch(url.toString())).json();
+	let response = safeFetch(url);
+	if (response.error) return res.json({ error: response.error });
 
 	const pagePosts = response.data;
 
@@ -199,3 +193,5 @@ exports.getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	});
 	res.json({ result: `Successfully wrote page posts to firestore db` });
 });
+
+export default { getAccessToken, getUserID, storeMetaAuthToken, getUserInfo, getPageAccessToken, getPagePostInsights };
