@@ -42,7 +42,7 @@ const cleanup = (intervalRef, popupRef, handleMessageListener) => {
 	window.removeEventListener("message", handleMessageListener);
 };
 
-const enhanceAuthorizeUrl = (authorizeUrl, clientId, redirectUri, scope, state) => {
+const getAuthorizationUrl = (authorizeUrl, clientId, redirectUri, scope, state) => {
 	const url = new URL(authorizeUrl);
 	url.searchParams.append("response_type", "code");
 	url.searchParams.append("client_id", clientId);
@@ -81,7 +81,7 @@ const useOAuth = (props) => {
 		saveState(state);
 
 		// 3. Open popup
-		popupRef.current = openPopup(enhanceAuthorizeUrl(authorizeUrl, clientId, redirectUri, scope, state));
+		popupRef.current = openPopup(getAuthorizationUrl(authorizeUrl, clientId, redirectUri, scope, state));
 
 		// 4. Register message listener
 		async function handleMessageListener(message) {
@@ -151,7 +151,7 @@ const useOAuth = (props) => {
 		};
 	};
 
-	return getAuth;
+	return [getAuth, loading, error];
 };
 
 export default useOAuth;

@@ -20,7 +20,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 export default function SignupPage(props) {
-	const metaOAuth = useOAuth(constants.metaOAuthProps);
+	const [metaOAuth, loading, error] = useOAuth(constants.metaOAuthProps);
 	const { classes } = useStyles();
 	const navigate = useNavigate();
 	const [visible, setVisible] = useState(false); // for loading screen between create acc and dashboard pages
