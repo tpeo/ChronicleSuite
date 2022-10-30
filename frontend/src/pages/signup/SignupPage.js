@@ -19,8 +19,8 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 export default function SignupPage(props) {
-	const [metaToken, metaOAuth, metaLoading, metaError] = useOAuth(constants.metaOAuthProps);
-	const [instagramToken, instagramOAuth, instagramLoading, instagramError] = useOAuth(constants.instagramOAuthProps);
+	const metaOAuth = useOAuth(constants.metaOAuthProps);
+	const instagramOAuth = useOAuth(constants.instagramOAuthProps);
 	const { classes } = useStyles();
 	const navigate = useNavigate();
 	const [visible, setVisible] = useState(false); // for loading screen between create acc and dashboard pages
@@ -197,7 +197,7 @@ export default function SignupPage(props) {
 								</Text>
 								<Button
 									// onClick={facebookAccountService.login}
-									onClick={metaOAuth}
+									onClick={metaOAuth.authorize}
 									leftIcon={<FaFacebookSquare />}
 									variant="white"
 									size="xl"
@@ -207,7 +207,7 @@ export default function SignupPage(props) {
 								</Button>
 
 								<Button
-									onClick={instagramOAuth}
+									onClick={instagramOAuth.authorize}
 									leftIcon={<FaInstagramSquare />}
 									variant="white"
 									size="xl"

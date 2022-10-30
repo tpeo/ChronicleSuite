@@ -3,15 +3,10 @@ import functions from "firebase-functions";
 import fetch from "node-fetch";
 
 const safeFetch = async (url, method, body) => {
-	const fetchOptions = method
-		? {
-				method,
-				body,
-				// headers: {
-				// 	"Content-Type": "multipart/form-data",
-				// },
-		  }
-		: {};
+	const fetchOptions = {
+		method,
+		body,
+	};
 	functions.logger.log(fetchOptions);
 
 	const response = await fetch(url.toString(), fetchOptions);
