@@ -1,4 +1,3 @@
-import env from "../env";
 import axios from "axios";
 
 import { facebookAccountService } from "../_services/facebook.account.service";

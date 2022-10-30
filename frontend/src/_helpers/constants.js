@@ -1,6 +1,4 @@
-import env from "../env";
-
-export const FIREBASE_EMULATOR_URL = "http://127.0.0.1:5001";
+export const FIREBASE_FUNCTIONS_URL = "http://127.0.0.1:5001";
 
 export const USER_ID_UNKNOWN = null;
 
@@ -53,26 +51,26 @@ export const ISO_DATE_TIME_STR_0 = ["2019-7-16", "9:21 AM"];
 const oauthRedirectURI = "https://localhost:3000/callback";
 
 export const metaOAuthProps = {
-	platform: "META",
+	platform: "meta",
 	authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
-	clientId: env.REACT_APP_FACEBOOK_APP_ID,
+	clientId: process.env.REACT_APP_META_CLIENT_ID,
 	redirectUri: oauthRedirectURI,
-	accessTokenUrl: `${FIREBASE_EMULATOR_URL}/chroniclesuite/us-central1/default-meta-getAccessToken`,
-	scope: "",
-};
-export const twitterOAuthProps = {
-	platform: "TWITTER",
-	authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
-	clientId: env.REACT_APP_FACEBOOK_APP_ID,
-	redirectUri: oauthRedirectURI,
-	// accessTokenUrl: `${FIREBASE_EMULATOR_URL}/chroniclesuite/us-central1/meta-getAccessToken`,
+	accessTokenUrl: `${FIREBASE_FUNCTIONS_URL}/chroniclesuite/us-central1/default-meta-getAccessToken`,
 	scope: "",
 };
 export const instagramOAuthProps = {
-	platform: "INSTAGRAM",
-	authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
-	clientId: env.REACT_APP_FACEBOOK_APP_ID,
+	platform: "instagram",
+	authorizeUrl: "https://api.instagram.com/oauth/authorize",
+	clientId: process.env.REACT_APP_INSTAGRAM_CLIENT_ID,
 	redirectUri: oauthRedirectURI,
-	accessTokenUrl: `${FIREBASE_EMULATOR_URL}/chroniclesuite/us-central1/instagram-getAccessToken`,
+	accessTokenUrl: `${FIREBASE_FUNCTIONS_URL}/chroniclesuite/us-central1/default-instagram-getAccessToken`,
+	scope: "user_profile,user_media",
+};
+export const twitterOAuthProps = {
+	platform: "twitter",
+	authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
+	clientId: process.env.REACT_APP_FACEBOOK_APP_ID,
+	redirectUri: oauthRedirectURI,
+	// accessTokenUrl: `${FIREBASE_EMULATOR_URL}/chroniclesuite/us-central1/meta-getAccessToken`,
 	scope: "",
 };

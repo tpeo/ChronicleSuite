@@ -14,11 +14,12 @@
 	"main": "index.js",
 	"dependencies": {
 		"firebase-admin": "^10.0.2",
-		"firebase-functions": "^4.0.1"
+		"firebase-functions": "^4.0.1",
+		"form-data": "^4.0.0"
 	},
 	"devDependencies": {
 		"firebase-functions-test": "^0.2.0"
 	},
 	"private": true,
-    "type": "module"
+	"type": "module"
 }

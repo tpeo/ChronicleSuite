@@ -42,7 +42,7 @@ const cleanup = (intervalRef, popupRef, handleMessageListener) => {
 	window.removeEventListener("message", handleMessageListener);
 };
 
-const getAuthorizationUrl = (authorizeUrl, clientId, redirectUri, scope, state) => {
+function getAuthorizationUrl(authorizeUrl, clientId, redirectUri, scope, state) {
 	const url = new URL(authorizeUrl);
 	url.searchParams.append("response_type", "code");
 	url.searchParams.append("client_id", clientId);
@@ -50,17 +50,17 @@ const getAuthorizationUrl = (authorizeUrl, clientId, redirectUri, scope, state) 
 	url.searchParams.append("scope", scope);
 	url.searchParams.append("state", state);
 	return url.toString();
-};
+}
 
-const fetchAccessToken = async (serverUrl, clientId, code, redirectUri, platform) => {
+async function fetchAccessToken(serverUrl, clientId, code, redirectUri, platform) {
 	const url = new URL(serverUrl);
 	url.searchParams.append("client_id", clientId);
 	url.searchParams.append("code", code);
 	url.searchParams.append("redirect_uri", redirectUri);
-	// url.searchParams.append("platform", platform);
+	url.searchParams.append("platform", platform);
 	const response = await fetch(url.toString());
 	return response;
-};
+}
 
 const useOAuth = (props) => {
 	const { platform, authorizeUrl, clientId, redirectUri, accessTokenUrl, scope = "" } = props;
@@ -68,6 +68,7 @@ const useOAuth = (props) => {
 	const intervalRef = useRef();
 	const popupRef = useRef();
 	const [{ loading, error }, setUI] = useState({ loading: false, error: null });
+	const [token, setToken] = useState();
 
 	const getAuth = () => {
 		// 1. Init
@@ -85,46 +86,38 @@ const useOAuth = (props) => {
 
 		// 4. Register message listener
 		async function handleMessageListener(message) {
-			console.log(message.data);
-			try {
-				const type = message?.data?.type;
-				if (type === OAUTH_RESPONSE) {
-					const errorMaybe = message?.data?.error;
-					if (errorMaybe) {
+			const type = message?.data?.type;
+			if (type === OAUTH_RESPONSE) {
+				const error = message?.data?.error;
+				if (error) {
+					setUI({
+						loading: false,
+						error: error,
+					});
+				} else {
+					const code = message?.data?.payload;
+					const response = await fetchAccessToken(accessTokenUrl, clientId, code, redirectUri, platform);
+
+					if (response.ok) {
+						const payload = await response.json();
 						setUI({
 							loading: false,
-							error: errorMaybe || "Unknown Error",
+							error: null,
 						});
+						// setData(payload);
+						setToken(payload.accessToken);
+						// Lines above will cause 2 rerenders but it's fine for this tutorial :-)
 					} else {
-						const code = message?.data?.payload;
-						const response = await fetchAccessToken(accessTokenUrl, clientId, code, redirectUri, platform);
-						if (!response.ok) {
-							setUI({
-								loading: false,
-								error: "Failed to exchange code for token",
-							});
-						} else {
-							const payload = await response.json();
-							setUI({
-								loading: false,
-								error: null,
-							});
-							// setData(payload);
-							console.log(payload);
-							// Lines above will cause 2 rerenders but it's fine for this tutorial :-)
-						}
+						setUI({
+							loading: false,
+							error: "Failed to exchange code for token",
+						});
 					}
 				}
-			} catch (genericError) {
-				console.error(genericError);
-				setUI({
-					loading: false,
-					error: genericError.toString(),
-				});
-			} finally {
-				// Clear stuff ...
-				cleanup(intervalRef, popupRef, handleMessageListener);
 			}
+
+			// Clear stuff ...
+			cleanup(intervalRef, popupRef, handleMessageListener);
 		}
 		window.addEventListener("message", handleMessageListener);
 
@@ -151,7 +144,7 @@ const useOAuth = (props) => {
 		};
 	};
 
-	return [getAuth, loading, error];
+	return [token, getAuth, loading, error];
 };
 
 export default useOAuth;

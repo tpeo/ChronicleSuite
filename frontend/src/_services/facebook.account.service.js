@@ -2,13 +2,12 @@
 // import firebase from 'firebase/compat/app';
 // import 'firebase/compat/auth';
 // import 'firebase/compat/firestore';
-import env from "../env";
 import * as constants from "./../_helpers/constants";
 import { utils } from "./../_helpers/utils";
 
 // const auth = firebase.auth();
 
-const facebookAppId = env.REACT_APP_FACEBOOK_APP_ID;
+const facebookAppId = process.env.REACT_APP_META_CLIENT_ID;
 
 export const facebookAccountService = {
 	login,

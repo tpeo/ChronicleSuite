@@ -7,7 +7,6 @@ import { FaFacebookSquare, FaInstagramSquare, FaTwitterSquare } from "react-icon
 import { useNavigate } from "react-router-dom";
 import useOAuth from "../../_helpers/useOAuth";
 import { facebookAccountService } from "../../_services/facebook.account.service";
-import env from "../../env";
 import * as constants from "../../_helpers/constants";
 
 const useStyles = createStyles((theme, _params, getRef) => {
@@ -20,7 +19,8 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 export default function SignupPage(props) {
-	const [metaOAuth, loading, error] = useOAuth(constants.metaOAuthProps);
+	const [metaToken, metaOAuth, metaLoading, metaError] = useOAuth(constants.metaOAuthProps);
+	const [instagramToken, instagramOAuth, instagramLoading, instagramError] = useOAuth(constants.instagramOAuthProps);
 	const { classes } = useStyles();
 	const navigate = useNavigate();
 	const [visible, setVisible] = useState(false); // for loading screen between create acc and dashboard pages
@@ -207,6 +207,7 @@ export default function SignupPage(props) {
 								</Button>
 
 								<Button
+									onClick={instagramOAuth}
 									leftIcon={<FaInstagramSquare />}
 									variant="white"
 									size="xl"
