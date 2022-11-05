@@ -21,6 +21,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 export default function SignupPage(props) {
 	const metaOAuth = useOAuth(constants.metaOAuthProps);
 	const instagramOAuth = useOAuth(constants.instagramOAuthProps);
+	const twitterOAuth = useOAuth(constants.twitterOAuthProps);
 	const { classes } = useStyles();
 	const navigate = useNavigate();
 	const [visible, setVisible] = useState(false); // for loading screen between create acc and dashboard pages
@@ -216,6 +217,7 @@ export default function SignupPage(props) {
 									Connect to Instagram
 								</Button>
 								<Button
+									onClick={twitterOAuth.authorize}
 									leftIcon={<FaTwitterSquare />}
 									variant="white"
 									size="xl"

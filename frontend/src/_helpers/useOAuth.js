@@ -30,22 +30,12 @@ const openPopup = (url) => {
 	// center the pop-up over the parent window.
 	const top = window.outerHeight / 2 + window.screenY - POPUP_HEIGHT / 2;
 	const left = window.outerWidth / 2 + window.screenX - POPUP_WIDTH / 2;
-	return window.open(url, "OAuth2 Popup", `height=${POPUP_HEIGHT},width=${POPUP_WIDTH},top=${top},left=${left}`);
+	return window.open(url, "_blank", `height=${POPUP_HEIGHT},width=${POPUP_WIDTH},top=${top},left=${left}`);
 };
 
 const closePopup = (popupRef) => {
 	popupRef.current?.close();
 };
-
-function getAuthorizationUrl(authorizeUrl, clientId, redirectUri, scope, state) {
-	const url = new URL(authorizeUrl);
-	url.searchParams.append("response_type", "code");
-	url.searchParams.append("client_id", clientId);
-	url.searchParams.append("redirect_uri", redirectUri);
-	url.searchParams.append("scope", scope);
-	url.searchParams.append("state", state);
-	return url.toString();
-}
 
 async function fetchAccessToken(serverUrl, clientId, code, redirectUri) {
 	const url = new URL(serverUrl);
@@ -57,12 +47,26 @@ async function fetchAccessToken(serverUrl, clientId, code, redirectUri) {
 }
 
 const useOAuth = (props) => {
-	const { platform, authorizeUrl, clientId, redirectUri, accessTokenUrl, scope = "" } = props;
+	const { platform, authorizeUrl, clientId, redirectUri, accessTokenUrl, scope = "", useCodeChallenge } = props;
 
 	const intervalRef = useRef();
 	const popupRef = useRef();
 	const [loading, setLoading] = useState(false);
 	const [token, setToken] = useState();
+
+	function getAuthorizationUrl(authorizeUrl, state) {
+		const url = new URL(authorizeUrl);
+		url.searchParams.append("response_type", "code");
+		url.searchParams.append("client_id", clientId);
+		url.searchParams.append("redirect_uri", redirectUri);
+		if (scope) url.searchParams.append("scope", scope);
+		url.searchParams.append("state", state);
+		if (useCodeChallenge) {
+			url.searchParams.append("code_challenge", "challenge");
+			url.searchParams.append("code_challenge_method", "plain");
+		}
+		return url.toString();
+	}
 
 	const cleanup = (handleMessageListener) => {
 		if (intervalRef.current) clearInterval(intervalRef.current);
@@ -80,14 +84,14 @@ const useOAuth = (props) => {
 		saveState(state);
 
 		// Open popup
-		popupRef.current = openPopup(getAuthorizationUrl(authorizeUrl, clientId, redirectUri, scope, state));
+		popupRef.current = openPopup(getAuthorizationUrl(authorizeUrl, state));
 
 		// Register message listener
 		async function handleMessageListener(message) {
 			const handleMessage = async () => {
 				const type = message?.data?.type;
 				const error = message?.data?.error;
-				if (type !== OAUTH_RESPONSE || error) return ERROR_CODE;
+				if (type !== OAUTH_RESPONSE || error) return error;
 
 				const code = message?.data?.payload;
 				if (!code) return ERROR_CODE;
@@ -102,8 +106,9 @@ const useOAuth = (props) => {
 				return SUCCESS_CODE;
 			};
 			const response = await handleMessage();
-			if (response === ERROR_CODE) console.log(`Failed signin with ${platform}`);
-			else console.log(`Successful signin with ${platform}`);
+			if (response === SUCCESS_CODE) console.log(`Successful signin with ${platform}`);
+			else if (response === ERROR_CODE) console.error(`Failed signin with ${platform}`);
+			else console.error(response);
 
 			// Clear stuff ...
 			cleanup(handleMessageListener);

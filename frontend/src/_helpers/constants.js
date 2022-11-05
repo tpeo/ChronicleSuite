@@ -48,29 +48,30 @@ export const HYPHEN = "-";
 export const ISO_TIMESTAMP_0 = "2019-07-16T15:21:56+0000";
 export const ISO_DATE_TIME_STR_0 = ["2019-7-16", "9:21 AM"];
 
-const oauthRedirectURI = "https://localhost:3000/callback";
+const OAuthRedirectURI = "https://localhost:3000/callback";
 
 export const metaOAuthProps = {
 	platform: "meta",
 	authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
 	clientId: process.env.REACT_APP_META_CLIENT_ID,
-	redirectUri: oauthRedirectURI,
+	redirectUri: OAuthRedirectURI,
 	accessTokenUrl: `${FIREBASE_FUNCTIONS_URL}/chroniclesuite/us-central1/default-meta-getAccessToken`,
-	scope: "",
+	scope: ["pages_read_engagement"].join(","),
 };
 export const instagramOAuthProps = {
 	platform: "instagram",
 	authorizeUrl: "https://api.instagram.com/oauth/authorize",
 	clientId: process.env.REACT_APP_INSTAGRAM_CLIENT_ID,
-	redirectUri: oauthRedirectURI,
+	redirectUri: OAuthRedirectURI,
 	accessTokenUrl: `${FIREBASE_FUNCTIONS_URL}/chroniclesuite/us-central1/default-instagram-getAccessToken`,
-	scope: "user_profile,user_media",
+	scope: ["user_profile", "user_media"].join(","),
 };
 export const twitterOAuthProps = {
 	platform: "twitter",
-	authorizeUrl: "https://www.facebook.com/v15.0/dialog/oauth",
-	clientId: process.env.REACT_APP_FACEBOOK_APP_ID,
-	redirectUri: oauthRedirectURI,
-	// accessTokenUrl: `${FIREBASE_EMULATOR_URL}/chroniclesuite/us-central1/meta-getAccessToken`,
-	scope: "",
+	authorizeUrl: "https://twitter.com/i/oauth2/authorize",
+	clientId: process.env.REACT_APP_TWITTER_CLIENT_ID,
+	redirectUri: OAuthRedirectURI,
+	accessTokenUrl: `${FIREBASE_FUNCTIONS_URL}/chroniclesuite/us-central1/default-twitter-getAccessToken`,
+	scope: ["offline.access"].join(" "),
+	useCodeChallenge: true,
 };

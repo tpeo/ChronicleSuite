@@ -26,7 +26,7 @@ const OAuthPopup = (props) => {
 		const error = payload.get("error");
 
 		if (!window.opener) {
-			throw new Error("No window opener");
+			throw new Error("No window opener found");
 		}
 
 		if (error) {
