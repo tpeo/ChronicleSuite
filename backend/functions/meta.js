@@ -50,11 +50,12 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
-	const response = safeFetch(url);
+	const response = await safeFetch(url);
 	if (response.error) return res.json(response);
 	functions.logger.log(response);
 	const userID = response.id;
 	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userID });
+	await admin.firestore().collection("users").doc(userID).update({ metaAuthToken: accessToken });
 
 	res.json({ id: response.id, result: `User ID ${userID} written` });
 });
@@ -85,7 +86,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 // 	});
 // 	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
 
-// 	const response = safeFetch(url);
+// 	const response = await safeFetch(url);
 // 	if (response.error) return res.json(response);
 // 	functions.logger.log(response);
 
@@ -106,7 +107,7 @@ const getUserInfo = functions.https.onRequest(async (req, res) => {
 	const url = new URL("https://graph.facebook.com/me?" + params.toString());
 
 	// ? User has type any
-	const response = safeFetch(url);
+	const response = await safeFetch(url);
 	if (response.error) return res.json(response);
 	const writeResult = await admin.firestore().collection("users").doc(userID).update({ userInfo: response });
 	res.json({ result: `User Info with ID: ${writeResult} added.` });
@@ -127,7 +128,7 @@ const getPageAccessToken = functions.https.onRequest(async (req, res) => {
 	const params = new URLSearchParams({ access_token: userAccessToken });
 	const url = new URL(`https://graph.facebook.com/v13.0/${userID}/accounts?` + params.toString());
 
-	const response = safeFetch(url);
+	const response = await safeFetch(url);
 	if (response.error) return res.json(response);
 
 	const pages = response.data;
@@ -156,7 +157,7 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	const params = new URLSearchParams({ access_token: pageAccessToken });
 	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts?` + params.toString());
 
-	let response = safeFetch(url);
+	let response = await safeFetch(url);
 	if (response.error) return res.json(response);
 
 	const pagePosts = response.data;

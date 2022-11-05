@@ -3,7 +3,7 @@
 	"description": "Cloud Functions for Firebase",
 	"scripts": {
 		"build:watch": "tsc --watch --preserveWatchOutput",
-		"serve": "npm run build:watch | firebase emulators:start",
+		"serve": "npm run build:watch | firebase emulators:start --export-on-exit=./saved-data",
 		"start": "npm run shell",
 		"deploy": "firebase deploy --only functions",
 		"logs": "firebase functions:log"

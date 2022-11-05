@@ -7,6 +7,7 @@ import * as constants from "../../_helpers/constants";
 import { Button } from "@mantine/core";
 import { FaFacebookSquare } from "react-icons/fa";
 import fetchUserID from "../../_services/GetMetaData";
+import useOAuth from "../../_helpers/useOAuth";
 
 function Meta() {
 	// const [metaAuthStatus, setMetaAuthStatus] = useState(constants.UNAUTHENTICATED);
@@ -34,12 +35,14 @@ function Meta() {
 	// } else {
 	// 	return <MetaLogin setMetaAuthStatus={setMetaAuthStatus} />;
 	// }
+	const metaOAuth = useOAuth(constants.metaOAuthProps);
+
 	return (
 		<div>
-			<Button onClick={facebookAccountService.login} leftIcon={<FaFacebookSquare />} variant="white" size="xl">
+			<Button onClick={metaOAuth.authorize} leftIcon={<FaFacebookSquare />} variant="white" size="xl">
 				Connect to Facebook
 			</Button>
-			<Button onClick={() => fetchUserID()}>Get Facebook Data</Button>
+			<Button onClick={() => fetchUserID(metaOAuth.token)}>Get Facebook Data</Button>
 		</div>
 	);
 }
