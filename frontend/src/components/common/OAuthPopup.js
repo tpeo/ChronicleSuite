@@ -2,10 +2,9 @@
 import { useEffect } from "react";
 
 const OAUTH_STATE_KEY = "react-use-oauth2-state-key";
-const OAUTH_RESPONSE = "react-use-oauth2-response";
 
 const checkState = (receivedState) => {
-	const state = sessionStorage.getItem(OAUTH_STATE_KEY);
+	const state = localStorage.getItem(OAUTH_STATE_KEY);
 	return state === receivedState;
 };
 
@@ -23,28 +22,15 @@ const OAuthPopup = (props) => {
 		const url = new URL(window.location.href);
 		const payload = url.searchParams;
 		const state = payload.get("state");
-		const error = payload.get("error");
+		const error = checkState(state) ? payload.get("error") : "State Mismatch";
+		const code = payload.get("code");
 
-		if (!window.opener) {
-			throw new Error("No window opener found");
-		}
+		console.log(code);
 
-		if (error) {
-			window.opener.postMessage({
-				type: OAUTH_RESPONSE,
-				error: decodeURI(error) || "OAuth error: An error has occured.",
-			});
-		} else if (!state || !checkState(state)) {
-			window.opener.postMessage({
-				type: OAUTH_RESPONSE,
-				error: "OAuth error: State mismatch.",
-			});
-		} else {
-			window.opener.postMessage({
-				type: OAUTH_RESPONSE,
-				payload: payload.get("code"),
-			});
-		}
+		const redirectUrl = new URL(localStorage.getItem(state));
+		if (code) redirectUrl.searchParams.append("code", code);
+		if (error) redirectUrl.searchParams.append("error", error);
+		window.open(redirectUrl, "_self");
 	}, []);
 
 	return Component;

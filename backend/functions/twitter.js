@@ -20,7 +20,7 @@ const getAccessToken = functions.https.onRequest(async (req, res) => {
 	body.append("redirect_uri", process.env.REDIRECT_URI);
 
 	let response = await safeFetch(url, "POST", body);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 
 	// const accessToken = response.access_token;
 

@@ -20,7 +20,7 @@ const getAccessToken = functions.https.onRequest(async (req, res) => {
 	url.searchParams.append("code", authToken);
 
 	let response = await safeFetch(url);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 
 	const accessToken = response.access_token;
 
@@ -32,7 +32,7 @@ const getAccessToken = functions.https.onRequest(async (req, res) => {
 	url.searchParams.append("fb_exchange_token", accessToken);
 
 	response = await safeFetch(url);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 
 	// store accessToken
 	res.json({ accessToken: response.access_token });
@@ -51,7 +51,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 
 	// ? User has type any
 	const response = safeFetch(url);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 	functions.logger.log(response);
 	const userID = response.id;
 	const writeResult = await admin.firestore().collection("users").doc(userID).set({ userID });
@@ -86,7 +86,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 // 	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
 
 // 	const response = safeFetch(url);
-// 	if (response.error) return res.json({ error: response.error });
+// if (response.error) return res.json(response);
 // 	functions.logger.log(response);
 
 // 	const longTermAccessToken = response.access_token;
@@ -107,7 +107,7 @@ const getUserInfo = functions.https.onRequest(async (req, res) => {
 
 	// ? User has type any
 	const response = safeFetch(url);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 	const writeResult = await admin.firestore().collection("users").doc(userID).update({ userInfo: response });
 	res.json({ result: `User Info with ID: ${writeResult} added.` });
 });
@@ -128,7 +128,7 @@ const getPageAccessToken = functions.https.onRequest(async (req, res) => {
 	const url = new URL(`https://graph.facebook.com/v13.0/${userID}/accounts?` + params.toString());
 
 	const response = safeFetch(url);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 
 	const pages = response.data;
 	if (!pages) return res.json({ error: "No pages found under this account" });
@@ -157,7 +157,7 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 	let url = new URL(`https://graph.facebook.com/v13.0/${pageId}/published_posts?` + params.toString());
 
 	let response = safeFetch(url);
-	if (response.error) return res.json({ error: response.error });
+	if (response.error) return res.json(response);
 
 	const pagePosts = response.data;
 

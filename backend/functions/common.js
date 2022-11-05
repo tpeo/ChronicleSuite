@@ -7,10 +7,8 @@ const safeFetch = async (url, method, body) => {
 		method,
 		body,
 	};
-	functions.logger.log(fetchOptions);
 
 	const response = await fetch(url.toString(), fetchOptions);
-	functions.logger.log(response);
 	if (!response) return { error: "No response" };
 	const data = await response.json();
 	functions.logger.log(data);
