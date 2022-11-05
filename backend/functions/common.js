@@ -2,16 +2,10 @@ import cors from "cors";
 import functions from "firebase-functions";
 import fetch from "node-fetch";
 
-const safeFetch = async (url, method, body) => {
-	const fetchOptions = {
-		method,
-		body,
-	};
-
-	const response = await fetch(url.toString(), fetchOptions);
+const safeFetch = async (url, options) => {
+	const response = await fetch(url.toString(), options);
 	if (!response) return { error: "No response" };
 	const data = await response.json();
-	functions.logger.log(data);
 	if (!response.ok) return { error: `Error with Status ${response.status}`, data };
 	return data;
 };

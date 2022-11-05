@@ -86,7 +86,7 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 // 	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
 
 // 	const response = safeFetch(url);
-// if (response.error) return res.json(response);
+// 	if (response.error) return res.json(response);
 // 	functions.logger.log(response);
 
 // 	const longTermAccessToken = response.access_token;
