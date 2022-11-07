@@ -162,66 +162,70 @@ const getPagePostInsights = functions.https.onRequest(async (req, res) => {
 
 	const pagePosts = response.data;
 
-	pagePosts.forEach(async (post) => {
-		const { message: caption, created_time, id: postID } = post;
+	const postInsights = await Promise.all(
+		pagePosts.map(async (post) => {
+			const { message: caption, created_time, id: postID } = post;
 
-		const batch = [
-			{
-				// Get post url and icon
-				method: "GET",
-				relative_url: `${postID}/?` + new URLSearchParams({ fields: "permalink_url,full_picture", access_token: pageAccessToken }).toString(),
-			},
-			{
-				// Get post likes count
-				method: "GET",
-				relative_url:
-					`${postID}/insights?` +
-					new URLSearchParams({
-						metric: "post_reactions_like_total",
-						access_token: pageAccessToken,
-					}).toString(),
-			},
-			// Get post comments count
-			{
-				method: "GET",
-				relative_url: `${postID}/comments?` + new URLSearchParams({ summary: "1", access_token: pageAccessToken }).toString(),
-			},
-		];
-
-		const p = new URLSearchParams({ access_token: accessToken, include_headers: "false", batch: JSON.stringify(batch) });
-		url = new URL(`https://graph.facebook.com/v13.0/${postID}?` + p.toString());
-
-		response = await (
-			await fetch(url.toString(), {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
+			const batch = [
+				{
+					// Get post url and icon
+					method: "GET",
+					relative_url: `${postID}/?` + new URLSearchParams({ fields: "permalink_url,full_picture", access_token: pageAccessToken }).toString(),
 				},
-			})
-		).json();
+				{
+					// Get post likes count
+					method: "GET",
+					relative_url:
+						`${postID}/insights?` +
+						new URLSearchParams({
+							metric: "post_reactions_like_total",
+							access_token: pageAccessToken,
+						}).toString(),
+				},
+				// Get post comments count
+				{
+					method: "GET",
+					relative_url: `${postID}/comments?` + new URLSearchParams({ summary: "1", access_token: pageAccessToken }).toString(),
+				},
+			];
 
-		const [postMetaData, reactions, comments] = response;
-		const permalink_url = JSON.parse(postMetaData.body).permalink_url;
-		const reactionData = JSON.parse(reactions.body).data;
-		const filteredReactions = {};
-		reactionData.forEach((element) => {
-			const { name, values } = element;
-			const totalReactions = values.reduce((s, value) => s + Object.values(value).reduce((r, i) => r + parseInt(i), 0), 0);
-			filteredReactions[name] = totalReactions;
-		});
+			const p = new URLSearchParams({ access_token: accessToken, include_headers: "false", batch: JSON.stringify(batch) });
+			url = new URL(`https://graph.facebook.com/v13.0/${postID}?` + p.toString());
 
-		const commentData = JSON.parse(comments.body).data;
-		const parsedComments = commentData.map((comment) => comment.message);
+			response = await (
+				await fetch(url.toString(), {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				})
+			).json();
 
-		const postData = { caption, created_time, permalink_url, reactions: filteredReactions, comments: parsedComments, platform: "Meta" };
-		await admin.firestore().collection("posts").doc(postID).set(postData);
-		await admin
-			.firestore()
-			.collection("users")
-			.doc(userID)
-			.update({ posts: FieldValue.arrayUnion(postID) });
-	});
-	res.json({ result: `Successfully wrote page posts to firestore db` });
+			const [postMetaData, reactions, comments] = response;
+			const permalink_url = JSON.parse(postMetaData.body).permalink_url;
+			const reactionData = JSON.parse(reactions.body).data;
+			const filteredReactions = {};
+			reactionData.forEach((element) => {
+				const { name, values } = element;
+				const totalReactions = values.reduce((s, value) => s + Object.values(value).reduce((r, i) => r + parseInt(i), 0), 0);
+				filteredReactions[name] = totalReactions;
+			});
+
+			const commentData = JSON.parse(comments.body).data;
+			const parsedComments = commentData.map((comment) => comment.message);
+
+			const postData = { caption, created_time, permalink_url, reactions: filteredReactions, comments: parsedComments, platform: "Meta" };
+			await admin.firestore().collection("posts").doc(postID).set(postData);
+			await admin
+				.firestore()
+				.collection("users")
+				.doc(userID)
+				.update({ posts: FieldValue.arrayUnion(postID) });
+
+			return postData;
+		})
+	);
+	res.json({ result: `Successfully wrote page posts to firestore db`, data: postInsights });
 });
 
 export default { getAccessToken, getUserID, getUserInfo, getPageAccessToken, getPagePostInsights };

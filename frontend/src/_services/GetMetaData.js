@@ -17,7 +17,7 @@ async function fetchUserID(accessToken) {
 	url = new URL(constants.FIREBASE_FUNCTIONS_URL + "/chroniclesuite/us-central1/default-meta-getPagePostInsights?" + params.toString());
 	response = await (await fetch(url)).json();
 
-	console.log(response);
+	console.log(response.data);
 
 	return response;
 }
