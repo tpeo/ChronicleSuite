@@ -60,44 +60,6 @@ const getUserID = functions.https.onRequest(async (req, res) => {
 	res.json({ id: response.id, result: `User ID ${userID} written` });
 });
 
-// Gets long term access token for Meta Authentiation
-// from ( ChronicleSuite frontend and stores it i)n
-// Firebase DB
-// https://developers.facebook.com/docs/pages/access-tokens/
-// const storeMetaAuthToken = functions.https.onRequest(async (req, res) => {
-// 	applyMiddleware(req, res);
-
-// 	// Check if Meta Auth Token (long term access token)
-// 	// is stored in Firebase DB
-// 	// getUserInfo for user id
-// 	const userID = req.query.userID;
-
-// 	// Get short term acces token from ( re)q
-// 	const metaAuthShortTermAccessToken = req?.query?.token?.toString();
-
-// 	if (!metaAuthShortTermAccessToken) return res.json({ result: "Short Term Access Token undefined" });
-
-// 	// Get long term access token
-// 	const params = new URLSearchParams({
-// 		grant_type: "fb_exchange_token",
-// 		client_id: process.env.META_CLIENT_ID,
-// 		client_secret: process.env.META_CLIENT_SECRET,
-// 		fb_exchange_token: metaAuthShortTermAccessToken,
-// 	});
-// 	const url = new URL("https://graph.facebook.com/oauth/access_token?" + params.toString());
-
-// 	const response = await safeFetch(url);
-// 	if (response.error) return res.json(response);
-// 	functions.logger.log(response);
-
-// 	const longTermAccessToken = response.access_token;
-
-// 	// Store long term access token in Firebase DB
-// 	await admin.firestore().collection("users").doc(userID).update({ metaAuthToken: longTermAccessToken });
-
-// 	res.json({ result: `Access Token ${longTermAccessToken} added.` });
-// });
-
 const getUserInfo = functions.https.onRequest(async (req, res) => {
 	applyMiddleware(req, res);
 
